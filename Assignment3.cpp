@@ -27,7 +27,8 @@ int main(void)
 	allTransactions->data[++allTransactions->size] = 350;
 	allTransactions->data[++allTransactions->size] = 645;
 	allTransactions->data[++allTransactions->size] = 900000009;
-	addTransaction(allTransactions);
+
+	findHighestTransaction(allTransactions);
 
 	// Display Transaction
 	printf("Normal:\n");
@@ -46,6 +47,9 @@ int main(void)
 
 	printf("After setting: \n");
 	displayTransactions(allTransactions);
+
+
+	findHighestTransaction(allTransactions);
 
 	// Free memory & exit
 	exit(allTransactions);
@@ -169,13 +173,36 @@ void displayTransactions(Transactions* allTransactions) {
 
 //
 // FUNCTION     : findHighestTransaction
-// DESCRIPTION  :
+// DESCRIPTION  : Finds the highest transaction fee in a list
 // PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void findHighestTransaction(Transactions* allTransactions) {
-//
-//}
+void findHighestTransaction(Transactions* allTransactions) {
+	float highestTransaction; // Store highest transaction
+	int current; // Store current masked integer
+	int highest = 0; // Find highest number in list
+	int highestIndex = EMPTY;
+	if (allTransactions != NULL) {
+		if (!isEmpty(allTransactions)) {
+			for (int i = 0; i <= allTransactions->size; i++) {
+				current = allTransactions->data[i] & MASK;
+				if (current > highest) {
+					highest = current;
+					highestIndex = i;
+				}
+			}
+			highestTransaction = (float)highest / 100;
+			printf("Highest Transaction is Transaction %d: $%.2f\n", highestIndex + 1, highestTransaction);
+		}
+		else {
+			printf("No transactions stored\n");
+		}
+	}
+	// If list is NULL
+	else {
+		printf("No transactions stored\n");
+	}
+}
 
 //
 // FUNCTION     : swapTransactions
