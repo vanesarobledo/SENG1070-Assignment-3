@@ -12,6 +12,21 @@
 #define	EMPTY	-1
 #define	SENTINEL	-1
 
+// Bit positions of where flags are stored in data
+#define	FLAG_PROCESSED	31
+#define	FLAG_REFUNDED	30
+
+
+#define	MASK	0b00111111111111111111111111111111
+	// First two bits are reserved for flags & the last 30 bits are for transaction amount
+	// This mask is applied to get the transaction amount
+
+#define	MAX_TRANSACTION	100000
+	// The maximum amount of significant digits available to store a transaction is 30, therefore the highest number that can be stored as a transaction amount is 2^30
+	// The units for transaction are stored as hundredth cents and printed as dollars to the console.
+	// Therefore, the maximum amount is (2^30)/4 dollars, or $107374.1824.
+	// For simplicity's sake, the maximum dollar amount is set to $100,000.
+
 // Menu
 enum menu {
 	ADD_TRANSACTION,
@@ -49,12 +64,17 @@ void toggleTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
 
 // Bit Operations
+
 void swapNum(float num1, float num2);
-float extractProcessed(float num);
-float extractRefunded(float num);
+void printBinary(unsigned int);
 
 // User Input Functions
 float getNum(void);
 int getIndex(void);
 
+// Bitmasking Library
+void set_bit(uint32_t* reg, uint8_t bit);
+void clear_bit(uint32_t* reg, uint8_t bit);
+void toggle_bit(uint32_t* reg, uint8_t bit);
+uint8_t is_bit_set(uint32_t reg, uint8_t bit);
 

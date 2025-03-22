@@ -22,13 +22,29 @@ int main(void)
 	Transactions* allTransactions = initializeArray();
 
 	// Add Transaction
+	//addTransaction(allTransactions);
+
+	allTransactions->data[++allTransactions->size] = 350;
+	allTransactions->data[++allTransactions->size] = 645;
+	allTransactions->data[++allTransactions->size] = 900000009;
 	addTransaction(allTransactions);
 
-	//allTransactions->data[++allTransactions->size] = 3;
-	//allTransactions->data[++allTransactions->size] = 6;
-	//allTransactions->data[++allTransactions->size] = 9;
-
 	// Display Transaction
+	printf("Normal:\n");
+	displayTransactions(allTransactions);
+
+	set_bit(&allTransactions->data[0], 31);
+	set_bit(&allTransactions->data[0], 30);
+
+
+	set_bit(&allTransactions->data[1], 31);
+	set_bit(&allTransactions->data[1], 30);
+
+
+	set_bit(&allTransactions->data[2], 31);
+	set_bit(&allTransactions->data[2], 30);
+
+	printf("After setting: \n");
 	displayTransactions(allTransactions);
 
 	// Free memory & exit
@@ -98,6 +114,9 @@ void addTransaction(Transactions* allTransactions) {
 		else if (amount < 0 && amount != SENTINEL) { // Check if negative
 			printf("Please enter a positive number.\n");
 		}
+		else if (amount > MAX_TRANSACTION) {
+			printf("Maximum dollar amount is $%.2lf, please enter a lower number\n", (float)(MAX_TRANSACTION / 100));
+		}
 		else if (amount != SENTINEL) { // Number is valid
 			// Multiply by 100 to convert dollar amount to hundredth cenths
 			amount = amount * 100;
@@ -120,8 +139,13 @@ void displayTransactions(Transactions* allTransactions) {
 		float dollar = 0.0;
 		for (int i = 0; i <= allTransactions->size; i++) {
 			// Convert from hundred cenths to dollars
-			dollar = (float)(allTransactions->data[i]) / 100;
-			printf("[%d] Transaction %d: $%.2f\n", i, i + 1, dollar);
+			dollar = (float)(allTransactions->data[i] & MASK) / 100;
+			printf("[%d] Transaction %d: $%.2f ", i, i + 1, dollar);
+			printf("| Processed: ");
+			is_bit_set(allTransactions->data[i], FLAG_PROCESSED) ? printf("Yes") : printf("No");
+			printf(" | Refunded: ");
+			is_bit_set(allTransactions->data[i], FLAG_REFUNDED) ? printf("Yes") : printf("No");
+			printf("\n");
 		}
 	}
 	// If dynamic array is empty, print error message
@@ -200,26 +224,6 @@ void exit(Transactions* allTransactions) {
 //	*num2 = *num2 ^ *num1;
 //	*num1 = *num1 ^ *num2;
 //}
-
-//
-// FUNCTION     : extractProcessed
-// DESCRIPTION  : Extract bit from data that determines if transaction was processed
-// PARAMETERS   : unsigned int num	:	Data holding transaction
-// RETURNS      : unsigned int
-//
-//unsigned int extractProcessed(unsigned int num) {
-//
-//}
-
-//
-// FUNCTION     : extractRefunded
-// DESCRIPTION  : Extract bit from data that determines if transaction was refunded
-// PARAMETERS   : unsigned int num	:	Data holding transaction
-// RETURNS      : unsigned int
-//
-//unsigned int extractRefunded(unsigned int num) {
-//}
-
 
 
 //
@@ -320,4 +324,28 @@ static inline void toggle_bit(uint32_t* reg, uint8_t bit) {
 }
 static inline uint8_t is_bit_set(uint32_t reg, uint8_t bit) {
 	return (reg & (1U << bit)) ? 1 : 0;
+}
+
+//
+// FUNCTION		: printBinary
+// DESCRIPTION	: This function prints an int in binary form
+// PARAMETERS	: unsigned char data	:	Data to print to binary
+// RETURNS		: void
+//
+void printBinary(unsigned int data)
+{
+	const int sizeofByte = 31; // Most significant bit position in int
+	// Print bit positions by iterating backward and print 1 or 0 by checking if bit was set
+	for (int i = sizeofByte; i >= 0; i--)
+	{
+		if (data & (1 << i))
+		{
+			printf("1");
+		}
+		else
+		{
+			printf("0");
+		}
+	}
+	printf("\n");
 }
