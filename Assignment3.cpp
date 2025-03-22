@@ -18,20 +18,169 @@
 int main(void)
 {
 	// Initialize dynamic array
-	int* wallet = (int*)malloc(ARRAY_SIZE*sizeof(int));
-
-	// Ensure memory is allocated
-	if (wallet == NULL) {
-		printf("Failed to allocate memory");
-		return EXIT_FAILURE;
-	}
+	initializeArray();
 
 	// Add Transaction
+
 
 	return EXIT_SUCCESS;
 }
 
 // Functions
+
+//
+// FUNCTION     : initializeArray
+// DESCRIPTION  : Dynamically allocates memory for an array
+// PARAMETERS   : none
+// RETURNS      : int* : Pointer to dynamic array
+//
+Wallet* initializeArray(void) {
+	Wallet* array = (Wallet*)malloc(sizeof(Wallet));
+
+	// Ensure memory is allocated
+	if (array == NULL) {
+		printf("Failed to allocate memory.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Dynamically allocate array
+	array->transactions = (int*)malloc(ARRAY_SIZE * sizeof(int));
+
+	// Initialize size of array, -1 means empty
+	array->size = EMPTY;
+
+	return array;
+}
+
+//
+// FUNCTION     : addTransaction
+// DESCRIPTION  : Asks a user to to enter transaction amounts to store in dynamic array until they enter -1
+// PARAMETERS   : Wallet* size :	Pointer to struct containing dynamic array
+// RETURNS      : void
+//
+void addTransaction(Wallet* wallet) {
+	float amount = 0.0; // Store amount of transaction
+
+	// Ask user for amount of transaction
+	do {
+		printf("Enter transaction amount (or -1 to stop): ");
+		amount = getNum();
+		if (amount == 0.0) {
+			printf("Please enter a valid number.\n");
+		}
+	} while (amount != -1);
+
+}
+
+//
+// FUNCTION     : displayTransactions
+// DESCRIPTION  :
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void displayTransactions(Wallet* wallet) {
+
+}
+
+//
+// FUNCTION     : applyTransactionFees
+// DESCRIPTION  :
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void applyTransactionFees(Wallet* wallet) {
+
+}
+
+//
+// FUNCTION     : findHighestTransaction
+// DESCRIPTION  :
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void findHighestTransaction(Wallet* wallet) {
+
+}
+
+//
+// FUNCTION     : swapTransactions
+// DESCRIPTION  :
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void swapTransactions(Wallet* wallet) {
+
+}
+
+//
+// FUNCTION     : toggleTransactionStatus
+// DESCRIPTION  :
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void toggleTransactionStatus(Wallet* wallet) {
+
+}
+
+//
+// FUNCTION     : exit
+// DESCRIPTION  : Frees memory of dynamically allocated array
+// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// RETURNS      : void
+//
+void exit(Wallet* wallet) {
+	if (wallet != NULL) {
+		free(wallet->transactions);
+		free(wallet);
+	}
+}
+
+//
+// FUNCTION     : getNum
+// DESCRIPTION  : Gets a float from the user - returns 0.0 if invalid
+// PARAMETERS   : none
+// RETURNS      : float
+//
+float getNum(void) {
+	float num = 0.0; // Store float to return
+	char input[INPUT_SIZE] = ""; // Buffer for user input
+	char extraChar = '0'; // Store any extraneous input from user
+
+	// Ask user for number
+	fgets(input, sizeof(input), stdin);
+	input[strlen(input) - 1] = '\n'; // Remove trailing newline character from input
+
+	// Validate input - return 0.0 if invalid
+	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
+		return 0.0;
+	}
+	else {
+		return num;
+	}
+}
+
+//
+// FUNCTION     : getIndex
+// DESCRIPTION  : Gets an integer from the user - returns -1 if invalid
+// PARAMETERS   : none
+// RETURNS      : int
+//
+int getIndex(void) {
+
+}
+
+//
+// FUNCTION     : swapNum
+// DESCRIPTION  : Swaps the value of two numbers
+// PARAMETERS   : int num1	:	The first number to swap
+//				  int num2	:	The second number to swap
+// RETURNS      : void
+//
+void swapNum(int num1, int num2) {
+	num1 = num1 ^ num2;
+	num2 = num2 ^ num1;
+	num1 = num1 ^ num2;
+}
 
 //
 // FUNCTION     : menu
@@ -80,120 +229,4 @@ void getMenuOperation(int* operation) {
 		// Input is valid, break loop
 		loopFlag = false;
 	}
-}
-
-//
-// FUNCTION     : addTransaction
-// DESCRIPTION  : Asks a user to 
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void addTransaction(int* arr) {
-
-}
-
-//
-// FUNCTION     : displayTransactions
-// DESCRIPTION  :
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void displayTransactions(int* arr) {
-
-}
-
-//
-// FUNCTION     : applyTransactionFees
-// DESCRIPTION  :
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void applyTransactionFees(int* arr) {
-
-}
-
-//
-// FUNCTION     : findHighestTransaction
-// DESCRIPTION  :
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void findHighestTransaction(int* arr) {
-
-}
-
-//
-// FUNCTION     : swapTransactions
-// DESCRIPTION  :
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void swapTransactions(int* arr) {
-
-}
-
-//
-// FUNCTION     : toggleTransactionStatus
-// DESCRIPTION  :
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void toggleTransactionStatus(int* arr) {
-
-}
-
-//
-// FUNCTION     : exit
-// DESCRIPTION  : Frees memory of dynamically allocated array
-// PARAMETERS   : int* arr	:	Pointer to dynamic array
-// RETURNS      : void
-//
-void exit(int* arr) {
-	free(arr);
-}
-
-//
-// FUNCTION     : getNum
-// DESCRIPTION  : Gets a double from the user - returns 0.0 if invalid
-// PARAMETERS   : none
-// RETURNS      : double
-//
-double getNum(void) {
-	double num = 0.0; // Store double to return
-	char input[INPUT_SIZE] = ""; // Buffer for user input
-	char extraChar = '0'; // Store any extraneous input from user
-
-	// Ask for number
-	fgets(input, sizeof(input), stdin);
-	input[strlen(input) - 1] = '\n'; // Remove trailing newline character from input
-
-	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
-		return 0.0;
-	}
-	else {
-		return num;
-	}
-}
-
-//
-// FUNCTION     : getIndex
-// DESCRIPTION  : Gets an integer from the user - returns -1 if invalid
-// PARAMETERS   : none
-// RETURNS      : int
-//
-int getIndex(void) {
-
-}
-
-//
-// FUNCTION     : swapNum
-// DESCRIPTION  : Swaps the value of two numbers
-// PARAMETERS   : int num1	:	The first number to swap
-//				  int num2	:	The second number to swap
-// RETURNS      : void
-//
-void swapNum(int num1, int num2) {
-	num1 = num1 ^ num2;
-	num2 = num2 ^ num1;
-	num1 = num1 ^ num2;
 }
