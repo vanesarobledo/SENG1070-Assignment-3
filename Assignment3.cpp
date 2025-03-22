@@ -21,11 +21,14 @@ int main(void)
 	Wallet* wallet = initializeArray();
 
 	// Add Transaction
-	addTransaction(wallet);
+	//addTransaction(wallet);
 
-	printf("%f\n", wallet->transactions[0]);
-	printf("%f\n", wallet->transactions[1]);
-	printf("%f\n", wallet->transactions[2]);
+	wallet->transactions[++wallet->size] = 3;
+	wallet->transactions[++wallet->size] = 6;
+	wallet->transactions[++wallet->size] = 9;
+
+	// Display Transaction
+	displayTransactions(wallet);
 
 	// Free memory & exit
 	exit(wallet);
@@ -98,18 +101,27 @@ void addTransaction(Wallet* wallet) {
 			wallet->transactions[++wallet->size] = amount;
 		}
 	} while (amount != STOP);
-
 }
 
 //
 // FUNCTION     : displayTransactions
-// DESCRIPTION  :
+// DESCRIPTION  : Displays all transactions on screen and their runtime
 // PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void displayTransactions(Wallet* wallet) {
-//
-//}
+void displayTransactions(Wallet* wallet) {
+	if (wallet != NULL && !isEmpty(wallet)) {
+		for (int i = 0; i <= wallet->size; i++) {
+			printf("[%d] Transaction %d: %.2f | Processed: ", i, i + 1, wallet->transactions[i]);
+		}
+	}
+	else if (isEmpty(wallet)) {
+		printf("No transactions to display.\n");
+	}
+	else {
+		printf("Error displaying transactions.\n");
+	}
+}
 
 //
 // FUNCTION     : applyTransactionFees
