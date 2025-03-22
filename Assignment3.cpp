@@ -18,11 +18,18 @@
 int main(void)
 {
 	// Initialize dynamic array
-	initializeArray();
+	Wallet* wallet = initializeArray();
 
 	// Add Transaction
+	addTransaction(wallet);
 
+	printf("%f\n", wallet->transactions[0]);
+	printf("%f\n", wallet->transactions[1]);
+	printf("%f\n", wallet->transactions[2]);
 
+	// Free memory & exit
+	exit(wallet);
+	
 	return EXIT_SUCCESS;
 }
 
@@ -44,7 +51,7 @@ Wallet* initializeArray(void) {
 	}
 
 	// Dynamically allocate array
-	array->transactions = (int*)malloc(ARRAY_SIZE * sizeof(int));
+	array->transactions = (float*)malloc(ARRAY_SIZE * sizeof(float));
 
 	// Initialize size of array, -1 means empty
 	array->size = EMPTY;
@@ -53,86 +60,110 @@ Wallet* initializeArray(void) {
 }
 
 //
+// FUNCTION     : isEmpty
+// DESCRIPTION  : Checks if size of array is 0 (i.e. size is not -1)
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// RETURNS      : bool
+//
+bool isEmpty(Wallet* wallet) {
+	if (wallet != NULL) {
+		return wallet->size == -1;
+	}
+	else {
+		return true;
+	}
+}
+
+//
 // FUNCTION     : addTransaction
 // DESCRIPTION  : Asks a user to to enter transaction amounts to store in dynamic array until they enter -1
-// PARAMETERS   : Wallet* size :	Pointer to struct containing dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void addTransaction(Wallet* wallet) {
 	float amount = 0.0; // Store amount of transaction
 
-	// Ask user for amount of transaction
+	// Ask user for amount of transaction and validate
 	do {
 		printf("Enter transaction amount (or -1 to stop): ");
 		amount = getNum();
-		if (amount == 0.0) {
+		if (amount == 0) { // Check for valid return from getNum
 			printf("Please enter a valid number.\n");
 		}
-	} while (amount != -1);
+		else if (amount < 0 && amount != STOP) { // Check if negative
+			printf("Please enter a positive number.\n");
+		}
+		else if (amount != STOP) { // Number is valid
+			// Increase index of wallet
+			wallet->transactions[++wallet->size] = amount;
+		}
+	} while (amount != STOP);
 
 }
 
 //
 // FUNCTION     : displayTransactions
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void displayTransactions(Wallet* wallet) {
-
-}
+//void displayTransactions(Wallet* wallet) {
+//
+//}
 
 //
 // FUNCTION     : applyTransactionFees
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void applyTransactionFees(Wallet* wallet) {
-
-}
+//void applyTransactionFees(Wallet* wallet) {
+//
+//}
 
 //
 // FUNCTION     : findHighestTransaction
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void findHighestTransaction(Wallet* wallet) {
-
-}
+//void findHighestTransaction(Wallet* wallet) {
+//
+//}
 
 //
 // FUNCTION     : swapTransactions
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void swapTransactions(Wallet* wallet) {
-
-}
+//void swapTransactions(Wallet* wallet) {
+//
+//}
 
 //
 // FUNCTION     : toggleTransactionStatus
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void toggleTransactionStatus(Wallet* wallet) {
-
-}
+//void toggleTransactionStatus(Wallet* wallet) {
+//
+//}
 
 //
 // FUNCTION     : exit
 // DESCRIPTION  : Frees memory of dynamically allocated array
-// PARAMETERS   : Wallet* wallet	:	Pointer to dynamic array
+// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void exit(Wallet* wallet) {
 	if (wallet != NULL) {
+		printf("Freeing dynamically allocated memory...\n");
 		free(wallet->transactions);
 		free(wallet);
 	}
+	exit(EXIT_SUCCESS);
 }
 
 //
@@ -148,7 +179,7 @@ float getNum(void) {
 
 	// Ask user for number
 	fgets(input, sizeof(input), stdin);
-	input[strlen(input) - 1] = '\n'; // Remove trailing newline character from input
+	input[strlen(input) - 1] = '\0'; // Remove trailing newline character from input
 
 	// Validate input - return 0.0 if invalid
 	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
@@ -165,9 +196,9 @@ float getNum(void) {
 // PARAMETERS   : none
 // RETURNS      : int
 //
-int getIndex(void) {
-
-}
+//int getIndex(void) {
+//
+//}
 
 //
 // FUNCTION     : swapNum

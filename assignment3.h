@@ -9,6 +9,7 @@
 #define	INPUT_SIZE	10
 #define	MENU_SIZE	2
 #define	EMPTY	-1
+#define	STOP	-1
 
 // Bitmasking Library
 #define set_bit(reg, bit)	((reg) |= (1U << (bit)))
@@ -29,17 +30,18 @@ enum menu {
 
 // Define Dynamic Array
 typedef struct Wallet {
-	int* transactions; // Stores all the transactions
+	float* transactions; // Stores all the transactions
 	int size; // Stores size of array
 } Wallet;
 
 // Function Prototypes
 Wallet* initializeArray(void);
+bool isEmpty(Wallet*);
 
 void menu(void);
 void getMenuOperation(int* operation);
 
-void addTransaction(Wallet* wallet, int size);
+void addTransaction(Wallet* wallet);
 void displayTransactions(Wallet* wallet);
 void applyTransactionFees(Wallet* wallet);
 void findHighestTransaction(Wallet* wallet);
