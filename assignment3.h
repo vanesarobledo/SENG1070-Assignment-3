@@ -3,19 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // Define macros
 #define ARRAY_SIZE	100
 #define	INPUT_SIZE	10
 #define	MENU_SIZE	2
 #define	EMPTY	-1
-#define	STOP	-1
-
-// Bitmasking Library
-#define set_bit(reg, bit)	((reg) |= (1U << (bit)))
-#define	clear_bit(reg, bit)	((reg &= ~(1U << (bit))))
-#define	toggle_bit(reg, bit)	((reg) ^= (1U << (bit)))
-#define is_bit_set(reg, bit)	reg & (1U << bit)) ? 1: 0
+#define	SENTINEL	-1
 
 // Menu
 enum menu {
@@ -30,17 +25,21 @@ enum menu {
 
 // Define Dynamic Array
 typedef struct Transactions {
-	float* data; // Stores all the transactions
+	unsigned int* data; // Stores all the transactions
 	int size; // Stores size of array
 } Transactions;
 
 // Function Prototypes
+
+// Dynamic Array
 Transactions* initializeArray(void);
 bool isEmpty(Transactions*);
 
+// Menu
 void menu(void);
 void getMenuOperation(int* operation);
 
+// Main User Functions
 void addTransaction(Transactions* allTransactions);
 void displayTransactions(Transactions* allTransactions);
 void applyTransactionFees(Transactions* allTransactions);
@@ -49,6 +48,13 @@ void swapTransactions(Transactions* allTransactions);
 void toggleTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
 
+// Bit Operations
+void swapNum(float num1, float num2);
+float extractProcessed(float num);
+float extractRefunded(float num);
+
+// User Input Functions
 float getNum(void);
 int getIndex(void);
-void swapNum(int num1, int num2);
+
+

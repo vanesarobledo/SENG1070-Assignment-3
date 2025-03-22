@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "assignment3.h"
 
@@ -54,7 +55,7 @@ Transactions* initializeArray(void) {
 	}
 
 	// Dynamically allocate array
-	array->data = (float*)malloc(ARRAY_SIZE * sizeof(float));
+	array->data = (unsigned int*)malloc(ARRAY_SIZE * sizeof(unsigned int));
 
 	// Initialize size of array, -1 means empty
 	array->size = EMPTY;
@@ -84,7 +85,8 @@ bool isEmpty(Transactions* allTransactions) {
 // RETURNS      : void
 //
 void addTransaction(Transactions* allTransactions) {
-	float amount = 0.0; // Store amount of transaction
+	float amount = 0.0; // Store user-inputted float
+	unsigned int transaction = 0; // Store amount of transaction
 
 	// Ask user for amount of transaction and validate
 	do {
@@ -93,14 +95,18 @@ void addTransaction(Transactions* allTransactions) {
 		if (amount == 0) { // Check for valid return from getNum
 			printf("Please enter a valid number.\n");
 		}
-		else if (amount < 0 && amount != STOP) { // Check if negative
+		else if (amount < 0 && amount != SENTINEL) { // Check if negative
 			printf("Please enter a positive number.\n");
 		}
-		else if (amount != STOP) { // Number is valid
-			// Increase index of Transactions
-			allTransactions->data[++allTransactions->size] = amount;
+		else if (amount != SENTINEL) { // Number is valid
+			// Multiply by 100 to convert dollar amount to hundredth cenths
+			amount = amount * 100;
+			// Store as integer
+			transaction = (int)amount;
+			// Increase index of transactions
+			allTransactions->data[++allTransactions->size] = transaction;
 		}
-	} while (amount != STOP);
+	} while (amount != SENTINEL);
 }
 
 //
@@ -112,7 +118,7 @@ void addTransaction(Transactions* allTransactions) {
 void displayTransactions(Transactions* allTransactions) {
 	if (allTransactions != NULL && !isEmpty(allTransactions)) {
 		for (int i = 0; i <= allTransactions->size; i++) {
-			printf("[%d] Transaction %d: %.2f | Processed: ", i, i + 1, allTransactions->data[i]);
+			printf("[%d] Transaction %d: %.2f\n", i, i + 1, allTransactions->data[i]);
 		}
 	}
 	// If dynamic array is empty, print error message
@@ -180,51 +186,38 @@ void exit(Transactions* allTransactions) {
 }
 
 //
-// FUNCTION     : getNum
-// DESCRIPTION  : Gets a float from the user - returns 0.0 if invalid
-// PARAMETERS   : none
-// RETURNS      : float
+// FUNCTION     : swapNum
+// DESCRIPTION  : Swaps the value of two numbers
+// PARAMETERS   : unsigned int num1	:	The first number to swap
+//				  unsigned int num2	:	The second number to swap
+// RETURNS      : void
 //
-float getNum(void) {
-	float num = 0.0; // Store float to return
-	char input[INPUT_SIZE] = ""; // Buffer for user input
-	char extraChar = '0'; // Store any extraneous input from user
-
-	// Ask user for number
-	fgets(input, sizeof(input), stdin);
-	input[strlen(input) - 1] = '\0'; // Remove trailing newline character from input
-
-	// Validate input - return 0.0 if invalid
-	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
-		return 0.0;
-	}
-	else {
-		return num;
-	}
-}
+//void swapNum(unsigned int* num1, unsigned int* num2) {
+//	*num1 = *num1 ^ *num2;
+//	*num2 = *num2 ^ *num1;
+//	*num1 = *num1 ^ *num2;
+//}
 
 //
-// FUNCTION     : getIndex
-// DESCRIPTION  : Gets an integer from the user - returns -1 if invalid
-// PARAMETERS   : none
-// RETURNS      : int
+// FUNCTION     : extractProcessed
+// DESCRIPTION  : Extract bit from data that determines if transaction was processed
+// PARAMETERS   : unsigned int num	:	Data holding transaction
+// RETURNS      : unsigned int
 //
-//int getIndex(void) {
+//unsigned int extractProcessed(unsigned int num) {
 //
 //}
 
 //
-// FUNCTION     : swapNum
-// DESCRIPTION  : Swaps the value of two numbers
-// PARAMETERS   : int num1	:	The first number to swap
-//				  int num2	:	The second number to swap
-// RETURNS      : void
+// FUNCTION     : extractRefunded
+// DESCRIPTION  : Extract bit from data that determines if transaction was refunded
+// PARAMETERS   : unsigned int num	:	Data holding transaction
+// RETURNS      : unsigned int
 //
-void swapNum(int num1, int num2) {
-	num1 = num1 ^ num2;
-	num2 = num2 ^ num1;
-	num1 = num1 ^ num2;
-}
+//unsigned int extractRefunded(unsigned int num) {
+//}
+
+
 
 //
 // FUNCTION     : menu
@@ -273,4 +266,55 @@ void getMenuOperation(int* operation) {
 		// Input is valid, break loop
 		loopFlag = false;
 	}
+}
+
+//
+// FUNCTION     : getNum
+// DESCRIPTION  : Gets a float from the user - returns 0.0 if invalid
+// PARAMETERS   : none
+// RETURNS      : float
+//
+float getNum(void) {
+	float num = 0.0; // Store float to return
+	char input[INPUT_SIZE] = ""; // Buffer for user input
+	char extraChar = '0'; // Store any extraneous input from user
+
+	// Ask user for number
+	fgets(input, sizeof(input), stdin);
+	input[strlen(input) - 1] = '\0'; // Remove trailing newline character from input
+
+	// Validate input - return 0.0 if invalid
+	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
+		return 0.0;
+	}
+	else {
+		return num;
+	}
+}
+
+//
+// FUNCTION     : getIndex
+// DESCRIPTION  : Gets an integer from the user - returns -1 if invalid
+// PARAMETERS   : none
+// RETURNS      : int
+//
+//int getIndex(void) {
+//
+//}
+
+
+
+// Bitmasking Library
+// From "SENG1070: Bitwise Operations" slides
+static inline void set_bit(uint32_t* reg, uint8_t bit) {
+	*reg |= (1U << bit);
+}
+static inline void clear_bit(uint32_t* reg, uint8_t bit) {
+	*reg &= ~(1U << bit);
+}
+static inline void toggle_bit(uint32_t* reg, uint8_t bit) {
+	*reg ^= (1U << bit);
+}
+static inline uint8_t is_bit_set(uint32_t reg, uint8_t bit) {
+	return (reg & (1U << bit)) ? 1 : 0;
 }
