@@ -22,11 +22,11 @@ int main(void)
 	Transactions* allTransactions = initializeArray();
 
 	// Add Transaction
-	//addTransaction(Transactions);
+	addTransaction(allTransactions);
 
-	allTransactions->data[++allTransactions->size] = 3;
-	allTransactions->data[++allTransactions->size] = 6;
-	allTransactions->data[++allTransactions->size] = 9;
+	//allTransactions->data[++allTransactions->size] = 3;
+	//allTransactions->data[++allTransactions->size] = 6;
+	//allTransactions->data[++allTransactions->size] = 9;
 
 	// Display Transaction
 	displayTransactions(allTransactions);
@@ -117,8 +117,11 @@ void addTransaction(Transactions* allTransactions) {
 //
 void displayTransactions(Transactions* allTransactions) {
 	if (allTransactions != NULL && !isEmpty(allTransactions)) {
+		float dollar = 0.0;
 		for (int i = 0; i <= allTransactions->size; i++) {
-			printf("[%d] Transaction %d: %.2f\n", i, i + 1, allTransactions->data[i]);
+			// Convert from hundred cenths to dollars
+			dollar = (float)(allTransactions->data[i]) / 100;
+			printf("[%d] Transaction %d: $%.2f\n", i, i + 1, dollar);
 		}
 	}
 	// If dynamic array is empty, print error message
