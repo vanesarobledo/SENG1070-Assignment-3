@@ -154,12 +154,25 @@ void exit(int* arr) {
 
 //
 // FUNCTION     : getNum
-// DESCRIPTION  : Gets a double from the user - returns 0 if invalid
+// DESCRIPTION  : Gets a double from the user - returns 0.0 if invalid
 // PARAMETERS   : none
 // RETURNS      : double
 //
 double getNum(void) {
+	double num = 0.0; // Store double to return
+	char input[INPUT_SIZE] = ""; // Buffer for user input
+	char extraChar = '0'; // Store any extraneous input from user
 
+	// Ask for number
+	fgets(input, sizeof(input), stdin);
+	input[strlen(input) - 1] = '\n'; // Remove trailing newline character from input
+
+	if (sscanf_s(input, "%f %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
+		return 0.0;
+	}
+	else {
+		return num;
+	}
 }
 
 //
