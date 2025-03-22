@@ -3,7 +3,7 @@
 * PROJECT       : SENG1070 Assignment 3: Array & Pointer Techniques with Bitwise Operations
 * PROGRAMMER    : Vanesa Robledo
 * FIRST VERSION : 2025-03-21
-* DESCRIPTION   : This is a console-based cryptocurrency wallet manager. Users can add and view transactions,
+* DESCRIPTION   : This is a console-based cryptocurrency Transactions manager. Users can add and view transactions,
 				  apply transaction fees, find the highest transactions, swap transactions, and toggle transactions
 				  as processed or refunded.
 */
@@ -18,20 +18,20 @@
 int main(void)
 {
 	// Initialize dynamic array
-	Wallet* wallet = initializeArray();
+	Transactions* allTransactions = initializeArray();
 
 	// Add Transaction
-	//addTransaction(wallet);
+	//addTransaction(Transactions);
 
-	wallet->transactions[++wallet->size] = 3;
-	wallet->transactions[++wallet->size] = 6;
-	wallet->transactions[++wallet->size] = 9;
+	allTransactions->data[++allTransactions->size] = 3;
+	allTransactions->data[++allTransactions->size] = 6;
+	allTransactions->data[++allTransactions->size] = 9;
 
 	// Display Transaction
-	displayTransactions(wallet);
+	displayTransactions(allTransactions);
 
 	// Free memory & exit
-	exit(wallet);
+	exit(allTransactions);
 	
 	return EXIT_SUCCESS;
 }
@@ -44,8 +44,8 @@ int main(void)
 // PARAMETERS   : none
 // RETURNS      : int* : Pointer to dynamic array
 //
-Wallet* initializeArray(void) {
-	Wallet* array = (Wallet*)malloc(sizeof(Wallet));
+Transactions* initializeArray(void) {
+	Transactions* array = (Transactions*)malloc(sizeof(Transactions));
 
 	// Ensure memory is allocated
 	if (array == NULL) {
@@ -54,7 +54,7 @@ Wallet* initializeArray(void) {
 	}
 
 	// Dynamically allocate array
-	array->transactions = (float*)malloc(ARRAY_SIZE * sizeof(float));
+	array->data = (float*)malloc(ARRAY_SIZE * sizeof(float));
 
 	// Initialize size of array, -1 means empty
 	array->size = EMPTY;
@@ -65,12 +65,12 @@ Wallet* initializeArray(void) {
 //
 // FUNCTION     : isEmpty
 // DESCRIPTION  : Checks if size of array is 0 (i.e. size is not -1)
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : bool
 //
-bool isEmpty(Wallet* wallet) {
-	if (wallet != NULL) {
-		return wallet->size == -1;
+bool isEmpty(Transactions* allTransactions) {
+	if (allTransactions != NULL) {
+		return allTransactions->size == -1;
 	}
 	else {
 		return true;
@@ -80,10 +80,10 @@ bool isEmpty(Wallet* wallet) {
 //
 // FUNCTION     : addTransaction
 // DESCRIPTION  : Asks a user to to enter transaction amounts to store in dynamic array until they enter -1
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void addTransaction(Wallet* wallet) {
+void addTransaction(Transactions* allTransactions) {
 	float amount = 0.0; // Store amount of transaction
 
 	// Ask user for amount of transaction and validate
@@ -97,8 +97,8 @@ void addTransaction(Wallet* wallet) {
 			printf("Please enter a positive number.\n");
 		}
 		else if (amount != STOP) { // Number is valid
-			// Increase index of wallet
-			wallet->transactions[++wallet->size] = amount;
+			// Increase index of Transactions
+			allTransactions->data[++allTransactions->size] = amount;
 		}
 	} while (amount != STOP);
 }
@@ -106,16 +106,17 @@ void addTransaction(Wallet* wallet) {
 //
 // FUNCTION     : displayTransactions
 // DESCRIPTION  : Displays all transactions on screen and their runtime
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void displayTransactions(Wallet* wallet) {
-	if (wallet != NULL && !isEmpty(wallet)) {
-		for (int i = 0; i <= wallet->size; i++) {
-			printf("[%d] Transaction %d: %.2f | Processed: ", i, i + 1, wallet->transactions[i]);
+void displayTransactions(Transactions* allTransactions) {
+	if (allTransactions != NULL && !isEmpty(allTransactions)) {
+		for (int i = 0; i <= allTransactions->size; i++) {
+			printf("[%d] Transaction %d: %.2f | Processed: ", i, i + 1, allTransactions->data[i]);
 		}
 	}
-	else if (isEmpty(wallet)) {
+	// If dynamic array is empty, print error message
+	else if (isEmpty(allTransactions)) {
 		printf("No transactions to display.\n");
 	}
 	else {
@@ -126,54 +127,54 @@ void displayTransactions(Wallet* wallet) {
 //
 // FUNCTION     : applyTransactionFees
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void applyTransactionFees(Wallet* wallet) {
+//void applyTransactionFees(Transactions* allTransactions) {
 //
 //}
 
 //
 // FUNCTION     : findHighestTransaction
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void findHighestTransaction(Wallet* wallet) {
+//void findHighestTransaction(Transactions* allTransactions) {
 //
 //}
 
 //
 // FUNCTION     : swapTransactions
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void swapTransactions(Wallet* wallet) {
+//void swapTransactions(Transactions* allTransactions) {
 //
 //}
 
 //
 // FUNCTION     : toggleTransactionStatus
 // DESCRIPTION  :
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void toggleTransactionStatus(Wallet* wallet) {
+//void toggleTransactionStatus(Transactions* allTransactions) {
 //
 //}
 
 //
 // FUNCTION     : exit
 // DESCRIPTION  : Frees memory of dynamically allocated array
-// PARAMETERS   : Wallet* wallet :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void exit(Wallet* wallet) {
-	if (wallet != NULL) {
+void exit(Transactions* allTransactions) {
+	if (allTransactions != NULL) {
 		printf("Freeing dynamically allocated memory...\n");
-		free(wallet->transactions);
-		free(wallet);
+		free(allTransactions->data);
+		free(allTransactions);
 	}
 	exit(EXIT_SUCCESS);
 }
@@ -232,7 +233,7 @@ void swapNum(int num1, int num2) {
 // RETURNS      : void
 //
 void menu(void) {
-	printf("Cryptocurrency Wallet");
+	printf("Cryptocurrency Transactions");
 	printf("1. Add a transaction");
 	printf("2. Display all transactions");
 	printf("3. Apply fee to all transactions");

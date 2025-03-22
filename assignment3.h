@@ -29,25 +29,25 @@ enum menu {
 };
 
 // Define Dynamic Array
-typedef struct Wallet {
-	float* transactions; // Stores all the transactions
+typedef struct Transactions {
+	float* data; // Stores all the transactions
 	int size; // Stores size of array
-} Wallet;
+} Transactions;
 
 // Function Prototypes
-Wallet* initializeArray(void);
-bool isEmpty(Wallet*);
+Transactions* initializeArray(void);
+bool isEmpty(Transactions*);
 
 void menu(void);
 void getMenuOperation(int* operation);
 
-void addTransaction(Wallet* wallet);
-void displayTransactions(Wallet* wallet);
-void applyTransactionFees(Wallet* wallet);
-void findHighestTransaction(Wallet* wallet);
-void swapTransactions(Wallet* wallet);
-void toggleTransactionStatus(Wallet* wallet);
-void exit(Wallet* wallet);
+void addTransaction(Transactions* allTransactions);
+void displayTransactions(Transactions* allTransactions);
+void applyTransactionFees(Transactions* allTransactions);
+void findHighestTransaction(Transactions* allTransactions);
+void swapTransactions(Transactions* allTransactions);
+void toggleTransactionStatus(Transactions* allTransactions);
+void exit(Transactions* allTransactions);
 
 float getNum(void);
 int getIndex(void);
