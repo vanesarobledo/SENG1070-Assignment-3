@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "assignment3.h"
 
@@ -25,6 +26,8 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
+	// Add Transaction
+
 	return EXIT_SUCCESS;
 }
 
@@ -37,7 +40,14 @@ int main(void)
 // RETURNS      : void
 //
 void menu(void) {
-
+	printf("Cryptocurrency Wallet");
+	printf("1. Add a transaction");
+	printf("2. Display all transactions");
+	printf("3. Apply fee to all transactions");
+	printf("4. Find highest transaction");
+	printf("5. Swap transactions");
+	printf("6. Toggle transaction status");
+	printf("7. Exit");
 }
 
 //
@@ -47,12 +57,34 @@ void menu(void) {
 // RETURNS      : void
 //
 void getMenuOperation(int* operation) {
+	char input[INPUT_SIZE] = ""; // Buffer to store input
+	bool loopFlag = true; // Flag to loop getting a valid menu number
+	const int kStart = 1; // First menu number
 
+	// Ask user for menu number
+	while (loopFlag) {
+		printf("Enter your choice: ");
+		fgets(input, sizeof(input), stdin);
+
+		// If input is too large or not an integer
+		if (strlen(input) > EXIT || sscanf_s(input, "%d", operation) == 0) {
+			printf("Please enter a valid input.\n");
+			continue;
+		}
+
+		// If integer is not a valid menu option
+		if (!(*operation >= kStart && *operation < EXIT)) {
+			printf("Please enter a valid menu number.\n");
+			continue;
+		}
+		// Input is valid, break loop
+		loopFlag = false;
+	}
 }
 
 //
 // FUNCTION     : addTransaction
-// DESCRIPTION  :
+// DESCRIPTION  : Asks a user to 
 // PARAMETERS   : int* arr	:	Pointer to dynamic array
 // RETURNS      : void
 //
@@ -101,12 +133,12 @@ void swapTransactions(int* arr) {
 }
 
 //
-// FUNCTION     : changeTransactionStatus
+// FUNCTION     : toggleTransactionStatus
 // DESCRIPTION  :
 // PARAMETERS   : int* arr	:	Pointer to dynamic array
 // RETURNS      : void
 //
-void changeTransactionStatus(int* arr) {
+void toggleTransactionStatus(int* arr) {
 
 }
 
@@ -122,7 +154,7 @@ void exit(int* arr) {
 
 //
 // FUNCTION     : getNum
-// DESCRIPTION  : Gets a double from the user - returns -1 if invalid
+// DESCRIPTION  : Gets a double from the user - returns 0 if invalid
 // PARAMETERS   : none
 // RETURNS      : double
 //
@@ -138,4 +170,17 @@ double getNum(void) {
 //
 int getIndex(void) {
 
+}
+
+//
+// FUNCTION     : swapNum
+// DESCRIPTION  : Swaps the value of two numbers
+// PARAMETERS   : int num1	:	The first number to swap
+//				  int num2	:	The second number to swap
+// RETURNS      : void
+//
+void swapNum(int num1, int num2) {
+	num1 = num1 ^ num2;
+	num2 = num2 ^ num1;
+	num1 = num1 ^ num2;
 }

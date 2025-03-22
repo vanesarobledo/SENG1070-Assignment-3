@@ -22,7 +22,7 @@ enum menu {
 	APPLY_FEES,
 	FIND_HIGHEST,
 	SWAP_TRANSACTIONS,
-	CHANGE_TRANSACTION_STATUS,
+	TOGGLE_TRANSACTION_STATUS,
 	EXIT
 };
 
@@ -35,8 +35,9 @@ void displayTransactions(int* arr);
 void applyTransactionFees(int* arr);
 void findHighestTransaction(int* arr);
 void swapTransactions(int* arr);
-void changeTransactionStatus(int* arr);
+void toggleTransactionStatus(int* arr);
 void exit(int* arr);
 
 double getNum(void);
 int getIndex(void);
+void swapNum(int num1, int num2);
