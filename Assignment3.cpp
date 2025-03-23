@@ -27,12 +27,9 @@ int main(void)
 	while (running) {
 		menu();
 		getMenuOperation(&choice);
-
 		switch (choice) {
 			case ADD_TRANSACTIONS:
 				addTransactions(allTransactions);
-				printf("\nAll Transactions:\n");
-				displayTransactions(allTransactions);
 				break;
 			case DISPLAY_TRANSACTIONS:
 				displayTransactions(allTransactions);
@@ -45,8 +42,6 @@ int main(void)
 				break;
 			case SWAP_TRANSACTIONS:
 				swapTransactions(allTransactions);
-				printf("\nSwapped Transactions:\n");
-				displayTransactions(allTransactions);
 				break;
 			case TOGGLE_TRANSACTION_STATUS:
 				toggleTransactionStatus(allTransactions);
@@ -175,7 +170,7 @@ void addTransactions(Transactions* allTransactions) {
 			printf("Please enter a positive number.\n");
 		}
 		else if (amount > MAX_TRANSACTION) {
-			printf("Maximum dollar amount is $%.2lf, please enter a lower number\n", (float)(MAX_TRANSACTION / 100));
+			printf("Maximum dollar amount is $%.2lf. Please enter a lower number.\n", (float)(MAX_TRANSACTION / 100));
 		}
 		else if (amount != SENTINEL) { // Number is valid
 			// Multiply by 100 to convert dollar amount to hundredth cenths
@@ -186,6 +181,12 @@ void addTransactions(Transactions* allTransactions) {
 			allTransactions->data[++allTransactions->size] = transaction;
 		}
 	} while (amount != SENTINEL);
+
+	// Print all transactions to screen
+	if (!isEmpty(allTransactions)) {
+		printf("\nAll Transactions:\n");
+		displayTransactions(allTransactions);
+	}
 }
 
 //
@@ -203,7 +204,7 @@ void displayTransactions(Transactions* allTransactions) {
 	}
 	// If dynamic array is empty, print error message
 	else if (isEmpty(allTransactions)) {
-		printf("No transactions to display.\n");
+		printf("No transactions stored to display.\n");
 	}
 	else {
 		printf("Error displaying transactions.\n");
@@ -218,10 +219,11 @@ void displayTransactions(Transactions* allTransactions) {
 // RETURNS      : void
 //
 void printTransaction(Transactions* allTransactions, int index) {
-	if (allTransactions != NULL) {
-		if (!isEmpty(allTransactions)) {
-			if (index >= 0 && index <= allTransactions->size) {
-				float dollar = (float)(allTransactions->data[index] & MASK) / 100;
+	if (allTransactions != NULL) { // Do not dereference NULL pointer
+		if (!isEmpty(allTransactions)) { // Only check if there are values in array
+			if (index >= 0 && index <= allTransactions->size) { // Only check if index is valid
+				// Extract transaction amount
+				float dollar = extractTransaction(allTransactions->data[index]) / 100;
 				printf("[%d] Transaction %d: $%.2f ", index, index + 1, dollar);
 				// Check processed flag
 				printf("| Processed: ");
@@ -376,11 +378,18 @@ void swapTransactions(Transactions* allTransactions) {
 				} while (index2 < 0 || index2 > max);
 
 				// Swap indices with XOR Swap
-				if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {
+				if (index1 == index2) { // Indexes were the same
+					printf("Indices provided were the same; values not swapped.\n");
+				}
+				else if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {
 					allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
 					allTransactions->data[index2] = allTransactions->data[index1] ^ allTransactions->data[index2];
 					allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
 				}
+
+				// Print swapped transactions to screen
+				printf("\All Transactions:\n");
+				displayTransactions(allTransactions);
 			}
 			else if (allTransactions->size == 0) {
 				printf("Cannot swap transactions - only one transaction is stored.\n");
@@ -475,9 +484,9 @@ void toggleTransactionStatus(Transactions* allTransactions) {
 //
 void exit(Transactions* allTransactions) {
 	if (allTransactions != NULL) {
-		printf("Freeing dynamically allocated memory...\n");
 		free(allTransactions->data);
 		free(allTransactions);
+		printf("Freed dynamically allocated memory.\n");
 	}
 	exit(EXIT_SUCCESS);
 }
