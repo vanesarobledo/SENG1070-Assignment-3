@@ -27,15 +27,15 @@
 	// For simplicity's sake, the maximum dollar amount is set to $100,000.
 
 // Menu
-enum menu {
-	ADD_TRANSACTION,
-	DISPLAY_TRANSACTIONS,
-	APPLY_FEES,
-	FIND_HIGHEST,
-	SWAP_TRANSACTIONS,
-	TOGGLE_TRANSACTION_STATUS,
-	EXIT
-};
+enum functions {
+	ADD_TRANSACTIONS = 1,
+	DISPLAY_TRANSACTIONS = 2,
+	APPLY_FEES = 3,
+	FIND_HIGHEST = 4,
+	SWAP_TRANSACTIONS = 5,
+	TOGGLE_TRANSACTION_STATUS = 6,
+	EXIT = 7
+} OPERATIONS;
 
 // Define Dynamic Array
 typedef struct Transactions {
@@ -54,20 +54,14 @@ void menu(void);
 void getMenuOperation(int* operation);
 
 // Main User Functions
-void addTransaction(Transactions* allTransactions);
+void addTransactions(Transactions* allTransactions);
 void displayTransactions(Transactions* allTransactions);
+void printTransaction(Transactions* allTransactions, int index);
 void applyTransactionFees(Transactions* allTransactions);
 void findHighestTransaction(Transactions* allTransactions);
 void swapTransactions(Transactions* allTransactions);
 void toggleTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
-
-// Bit Operations
-void printBinary(unsigned int);
-
-// User Input Functions
-float getNum(void);
-int getInt(void);
 
 // Bitmasking Library
 void set_bit(uint32_t* reg, uint8_t bit);
@@ -75,9 +69,14 @@ void clear_bit(uint32_t* reg, uint8_t bit);
 void toggle_bit(uint32_t* reg, uint8_t bit);
 uint8_t is_bit_set(uint32_t reg, uint8_t bit);
 
+// Bit Operations
 void toggleProcessed(unsigned int* transaction);
 void toggleRefunded(unsigned int* transaction);
 
 bool extractProcessed(unsigned int transaction);
 bool extractRefunded(unsigned int transaction);
 unsigned int extractTransaction(unsigned int transaction);
+
+// User Input Functions
+float getNum(void);
+int getInt(void);

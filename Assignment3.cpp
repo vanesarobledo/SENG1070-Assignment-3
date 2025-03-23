@@ -21,26 +21,99 @@ int main(void)
 	// Initialize dynamic array
 	Transactions* allTransactions = initializeArray();
 
-	allTransactions->data[++allTransactions->size] = 350;
-	allTransactions->data[++allTransactions->size] = 645;
-	allTransactions->data[++allTransactions->size] = 2020;
-	allTransactions->data[++allTransactions->size] = 9900;
-	allTransactions->data[++allTransactions->size] = 400400;
+	int choice = 0; // Store user menu choice
+	bool running = true; // Flag for menu
 
-	// Display Transaction
-	printf("Normal:\n");
-	displayTransactions(allTransactions);
+	while (running) {
+		menu();
+		getMenuOperation(&choice);
 
-	// Toggle transactions
-	toggleTransactionStatus(allTransactions);
-
-	// Free memory & exit
+		switch (choice) {
+			case ADD_TRANSACTIONS:
+				addTransactions(allTransactions);
+				printf("\nAll Transactions:\n");
+				displayTransactions(allTransactions);
+				break;
+			case DISPLAY_TRANSACTIONS:
+				displayTransactions(allTransactions);
+				break;
+			case APPLY_FEES:
+				applyTransactionFees(allTransactions);
+				break;
+			case FIND_HIGHEST:
+				findHighestTransaction(allTransactions);
+				break;
+			case SWAP_TRANSACTIONS:
+				swapTransactions(allTransactions);
+				printf("\nSwapped Transactions:\n");
+				displayTransactions(allTransactions);
+				break;
+			case TOGGLE_TRANSACTION_STATUS:
+				toggleTransactionStatus(allTransactions);
+				break;
+			case EXIT:
+				running = false;
+				break;
+			default:
+				printf("Invalid menu option.\n");
+				break;
+		}
+		printf("\n");
+	}
 	exit(allTransactions);
-	
 	return EXIT_SUCCESS;
 }
 
 // Functions
+
+//
+// FUNCTION     : menu
+// DESCRIPTION  : Prints the menu to the screen
+// PARAMETERS   : none
+// RETURNS      : void
+//
+void menu(void) {
+	printf("Cryptocurrency Transactions\n");
+	printf("1. Add a transaction\n");
+	printf("2. Display all transactions\n");
+	printf("3. Apply fee to all transactions\n");
+	printf("4. Find highest transaction\n");
+	printf("5. Swap transactions\n");
+	printf("6. Toggle transaction status\n");
+	printf("7. Exit\n");
+}
+
+//
+// FUNCTION     : getMenuOperation
+// DESCRIPTION  : Gets number from user for menu operation
+// PARAMETERS   : int* operation : Pointer to menu operation
+// RETURNS      : void
+//
+void getMenuOperation(int* operation) {
+	char input[INPUT_SIZE] = ""; // Buffer to store input
+	bool loopFlag = true; // Flag to loop getting a valid menu number
+	const int kStart = 1; // First menu number
+
+	// Ask user for menu number
+	while (loopFlag) {
+		printf("Enter your choice: ");
+		fgets(input, sizeof(input), stdin);
+
+		// If input is too large or not an integer
+		if (strlen(input) > EXIT || sscanf_s(input, "%d", operation) == 0) {
+			printf("Please enter a valid input.\n");
+			continue;
+		}
+
+		// If integer is not a valid menu option
+		if (!(*operation >= kStart && *operation <= EXIT)) {
+			printf("Please enter a valid menu number.\n");
+			continue;
+		}
+		// Input is valid, break loop
+		loopFlag = false;
+	}
+}
 
 //
 // FUNCTION     : initializeArray
@@ -82,12 +155,12 @@ bool isEmpty(Transactions* allTransactions) {
 }
 
 //
-// FUNCTION     : addTransaction
+// FUNCTION     : addTransactions
 // DESCRIPTION  : Asks a user to to enter transaction amounts to store in dynamic array until they enter -1
 // PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void addTransaction(Transactions* allTransactions) {
+void addTransactions(Transactions* allTransactions) {
 	float amount = 0.0; // Store user-inputted float
 	unsigned int transaction = 0; // Store amount of transaction
 
@@ -125,16 +198,7 @@ void displayTransactions(Transactions* allTransactions) {
 	if (allTransactions != NULL && !isEmpty(allTransactions)) {
 		float dollar = 0.0;
 		for (int i = 0; i <= allTransactions->size; i++) {
-			// Convert from hundred cenths to dollars
-			dollar = (float)(allTransactions->data[i] & MASK) / 100;
-			printf("[%d] Transaction %d: $%.2f ", i, i + 1, dollar);
-			// Check processed flag
-			printf("| Processed: ");
-			extractProcessed(allTransactions->data[i]) ? printf("Yes") : printf("No");
-			// Check refunded flag
-			printf(" | Refunded: ");
-			extractRefunded(allTransactions->data[i]) ? printf("Yes") : printf("No");
-			printf("\n");
+			printTransaction(allTransactions, i);
 		}
 	}
 	// If dynamic array is empty, print error message
@@ -419,55 +483,6 @@ void exit(Transactions* allTransactions) {
 }
 
 //
-// FUNCTION     : menu
-// DESCRIPTION  : Prints the menu to the screen
-// PARAMETERS   : none
-// RETURNS      : void
-//
-void menu(void) {
-	printf("Cryptocurrency Transactions");
-	printf("1. Add a transaction");
-	printf("2. Display all transactions");
-	printf("3. Apply fee to all transactions");
-	printf("4. Find highest transaction");
-	printf("5. Swap transactions");
-	printf("6. Toggle transaction status");
-	printf("7. Exit");
-}
-
-//
-// FUNCTION     : getMenuOperation
-// DESCRIPTION  : Gets number from user for menu operation
-// PARAMETERS   : int* operation : Pointer to menu operation
-// RETURNS      : void
-//
-void getMenuOperation(int* operation) {
-	char input[INPUT_SIZE] = ""; // Buffer to store input
-	bool loopFlag = true; // Flag to loop getting a valid menu number
-	const int kStart = 1; // First menu number
-
-	// Ask user for menu number
-	while (loopFlag) {
-		printf("Enter your choice: ");
-		fgets(input, sizeof(input), stdin);
-
-		// If input is too large or not an integer
-		if (strlen(input) > EXIT || sscanf_s(input, "%d", operation) == 0) {
-			printf("Please enter a valid input.\n");
-			continue;
-		}
-
-		// If integer is not a valid menu option
-		if (!(*operation >= kStart && *operation < EXIT)) {
-			printf("Please enter a valid menu number.\n");
-			continue;
-		}
-		// Input is valid, break loop
-		loopFlag = false;
-	}
-}
-
-//
 // FUNCTION     : getNum
 // DESCRIPTION  : Gets a float from the user - returns 0.0 if invalid
 // PARAMETERS   : none
@@ -587,13 +602,13 @@ unsigned int extractTransaction(unsigned int transaction) {
 // PARAMETERS	: unsigned char data : Data to print to binary
 // RETURNS		: void
 //
-void printBinary(unsigned int data)
-{
-	const int sizeofByte = 31; // Most significant bit position in int
-	// Print bit positions by iterating backward and print 1 or 0 by checking if bit was set
-	for (int i = sizeofByte; i >= 0; i--)
-	{
-		data& (1 << i) ? printf("1") : printf("0");
-	}
-	printf("\n");
-}
+//void printBinary(unsigned int data)
+//{
+//	const int sizeofByte = 31; // Most significant bit position in int
+//	// Print bit positions by iterating backward and print 1 or 0 by checking if bit was set
+//	for (int i = sizeofByte; i >= 0; i--)
+//	{
+//		data& (1 << i) ? printf("1") : printf("0");
+//	}
+//	printf("\n");
+//}
