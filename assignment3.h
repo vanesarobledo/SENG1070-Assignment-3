@@ -34,7 +34,7 @@ enum functions {
 	APPLY_FEES = 3,
 	FIND_HIGHEST = 4,
 	SWAP_TRANSACTIONS = 5,
-	TOGGLE_TRANSACTION_STATUS = 6,
+	UPDATE_TRANSACTION_STATUS = 6,
 	EXIT = 7
 } OPERATIONS;
 
@@ -61,7 +61,7 @@ void printTransaction(Transactions* allTransactions, int index);
 void applyTransactionFees(Transactions* allTransactions);
 void findHighestTransaction(Transactions* allTransactions);
 void swapTransactions(Transactions* allTransactions);
-void toggleTransactionStatus(Transactions* allTransactions);
+void updateTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
 
 // Bitmasking Library
@@ -71,7 +71,8 @@ void toggle_bit(unsigned int* data, int bit);
 bool is_bit_set(unsigned int data, int bit);
 
 // Bit Operations
-void toggleProcessed(unsigned int* transaction);
+void setProcessed(unsigned int* transaction);
+void clearProcessed(unsigned int* transaction);
 void toggleRefunded(unsigned int* transaction);
 
 bool extractProcessed(unsigned int transaction);

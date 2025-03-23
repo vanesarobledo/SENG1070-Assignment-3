@@ -4,8 +4,8 @@
 * PROGRAMMER    : Vanesa Robledo
 * FIRST VERSION : 2025-03-21
 * DESCRIPTION   : This is a console-based cryptocurrency Transactions manager. Users can add and view transactions,
-				  apply transaction fees, find the highest transactions, swap transactions, and toggle transactions
-				  as processed or refunded.
+				  apply transaction fees, find the highest transactions, swap transactions, and manage transaction flags
+				  (processed and refunded).
 */
 
 #include <stdio.h>
@@ -43,8 +43,8 @@ int main(void)
 			case SWAP_TRANSACTIONS:
 				swapTransactions(allTransactions);
 				break;
-			case TOGGLE_TRANSACTION_STATUS:
-				toggleTransactionStatus(allTransactions);
+			case UPDATE_TRANSACTION_STATUS:
+				updateTransactionStatus(allTransactions);
 				break;
 			case EXIT:
 				running = false;
@@ -74,7 +74,7 @@ void menu(void) {
 	printf("3. Apply fee to all transactions\n");
 	printf("4. Find highest transaction\n");
 	printf("5. Swap transactions\n");
-	printf("6. Toggle transaction status\n");
+	printf("6. Update transaction status\n");
 	printf("7. Exit\n");
 }
 
@@ -192,7 +192,6 @@ void addTransactions(Transactions* allTransactions) {
 
 	// Print all transactions to screen
 	if (!isEmpty(allTransactions)) {
-		printf("\nAll Transactions:\n");
 		displayTransactions(allTransactions);
 	}
 }
@@ -204,11 +203,18 @@ void addTransactions(Transactions* allTransactions) {
 // RETURNS      : void
 //
 void displayTransactions(Transactions* allTransactions) {
+	printf("\nAll Transactions:\n");
 	if (allTransactions != NULL && !isEmpty(allTransactions)) {
-		float dollar = 0.0;
+		// Calculate sum and average
+		float sum = 0.0;
+		float average = 0.0;
 		for (int i = 0; i <= allTransactions->size; i++) {
+			sum += (float)extractTransaction(allTransactions->data[i]) / CURRENCY;
 			printTransaction(allTransactions, i);
 		}
+		average = sum / (float)(allTransactions->size + 1);
+		printf("Total Transaction Amount: $%.2f\n", sum);
+		printf("Average Transaction Value: $%.2f\n", average);
 	}
 	// If dynamic array is empty, print error message
 	else if (isEmpty(allTransactions)) {
@@ -292,7 +298,7 @@ void applyTransactionFees(Transactions* allTransactions) {
 				newValue = calculatedValue;
 				// Re-set processed and refunded flags
 				if (processedFlag) {
-					toggleProcessed(&newValue);
+					setProcessed(&newValue);
 				}
 				if (refundedFlag) {
 					toggleRefunded(&newValue);
@@ -396,7 +402,6 @@ void swapTransactions(Transactions* allTransactions) {
 				}
 
 				// Print swapped transactions to screen
-				printf("\nAll Transactions:\n");
 				displayTransactions(allTransactions);
 			}
 			else if (allTransactions->size == 0) {
@@ -410,17 +415,17 @@ void swapTransactions(Transactions* allTransactions) {
 }
 
 //
-// FUNCTION     : toggleTransactionStatus
+// FUNCTION     : updateTransactionStatus
 // DESCRIPTION  : Asks the user for an index 
 // PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-void toggleTransactionStatus(Transactions* allTransactions) {
+void updateTransactionStatus(Transactions* allTransactions) {
 	// Constants for menu
-	const int kToggleProcessed = 1;
-	const int kToggleRefunded = 2;
-	const int kToggleBoth = 3;
-	const int kCancel = 4;
+	const int kSetProcessed = 1;
+	const int kClearProcessed = 2;
+	const int kToggleRefunded = 3;
+	const int kDisplayAllFlags = 4;
 
 	if (allTransactions != NULL) {
 		if (!isEmpty(allTransactions)) {
@@ -428,55 +433,59 @@ void toggleTransactionStatus(Transactions* allTransactions) {
 			int max = allTransactions->size; // Store highest index
 			int choice = SENTINEL; // Store user option
 
-			// Ask user for index to toggle
-			do {
-				printf("Enter transaction index to toggle: ");
-				index = getInt();
-				if (index < 0 || index > max) {
-					printf("Invalid input. Transaction index must be between 0 - %d.\n", max);
-				}
-			} while (index < 0 || index > max);
-
-			// Print transaction to screen
-			printf("\nTransaction to change:\n");
-			printTransaction(allTransactions, index);
-
 			// Ask user for option
 			do {
-				printf("\nMenu:\n");
-				printf("1. Toggle processed status\n");
-				printf("2. Toggle refunded status\n");
-				printf("3. Toggle both\n");
-				printf("4. Cancel\n");
+				printf("\n1. Set Processed\n");
+				printf("2. Clear Processed\n");
+				printf("3. Toggle Refunded\n");
+				printf("4. Display All Flags\n");
 				printf("Enter your choice: ");
 				choice = getInt();
-				if (choice < kToggleProcessed || choice > kCancel) {
+				if (choice < kSetProcessed || choice > kDisplayAllFlags) {
 					printf("Invalid option. Please select an option from 1-4.\n");
 				}
-			} while (choice < kToggleProcessed || choice > kCancel);
+			} while (choice < kSetProcessed || choice > kDisplayAllFlags);
+
+			if (choice != kDisplayAllFlags) {
+				// Ask user for index to toggle
+				do {
+					printf("Enter transaction index to modify: ");
+					index = getInt();
+					if (index < 0 || index > max) {
+						printf("Invalid input. Transaction index must be between 0 - %d.\n", max);
+					}
+				} while (index < 0 || index > max);
+			}
 
 			switch (choice) {
-			case kToggleProcessed:
-				toggleProcessed(&allTransactions->data[index]);
+			case kSetProcessed:
+				setProcessed(&allTransactions->data[index]);
+				break;
+			case kClearProcessed:
+				clearProcessed(&allTransactions->data[index]);
 				break;
 			case kToggleRefunded:
 				toggleRefunded(&allTransactions->data[index]);
 				break;
-			case kToggleBoth:
-				toggleProcessed(&allTransactions->data[index]);
-				toggleRefunded(&allTransactions->data[index]);
-				break;
-			case kCancel:
-				printf("\nCancelled toggling transcation.\n");
-				return; // User cancels, return to main function
+			case kDisplayAllFlags:
+				printf("\nAll Flags:\n");
+				for (int i = 0; i <= allTransactions->size; i++) {
+					printf("[%d] Transaction %d: ", i, i + 1);
+					printf("Processed: ");
+					extractProcessed(allTransactions->data[i]) ? printf("Yes") : printf("No");
+					printf(" | Refunded: ");
+					extractRefunded(allTransactions->data[i]) ? printf("Yes") : printf("No");
+					printf("\n");
+				}
 				break;
 			default:
 				break;
 			}
-
-			// Print updated transaction to screen
-			printf("\nUpdated transaction:\n");
-			printTransaction(allTransactions, index);
+			// Display updated transaction if changed
+			if (choice != kDisplayAllFlags) {
+				printf("\nUpdated transaction:\n");
+				printTransaction(allTransactions, index);
+			}
 		}
 		else {
 			printf("No transactions stored.\n");
@@ -596,13 +605,23 @@ bool is_bit_set(unsigned int data, int bit) {
 }
 
 //
-// FUNCTION     : toggleProcessed
-// DESCRIPTION  : Toggles processed flag
+// FUNCTION     : setProcessed
+// DESCRIPTION  : Sets processed flag
 // PARAMETERS   : unsigned int transaction : Pointer to data holding transaction
 // RETURNS      : void
 //
-void toggleProcessed(unsigned int* transaction) {
-	toggle_bit(transaction, PROCESSED_FLAG);
+void setProcessed(unsigned int* transaction) {
+	set_bit(transaction, PROCESSED_FLAG);
+}
+
+//
+// FUNCTION     : clearProcessed
+// DESCRIPTION  : Clears processed flag
+// PARAMETERS   : unsigned int transaction : Pointer to data holding transaction
+// RETURNS      : void
+//
+void clearProcessed(unsigned int* transaction) {
+	clear_bit(transaction, PROCESSED_FLAG);
 }
 
 //
