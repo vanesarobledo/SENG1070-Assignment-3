@@ -67,7 +67,7 @@ void printBinary(unsigned int);
 
 // User Input Functions
 float getNum(void);
-int getIndex(void);
+int getInt(void);
 
 // Bitmasking Library
 void set_bit(uint32_t* reg, uint8_t bit);

@@ -27,19 +27,11 @@ int main(void)
 	allTransactions->data[++allTransactions->size] = 9900;
 	allTransactions->data[++allTransactions->size] = 400400;
 
-	toggleProcessed(&allTransactions->data[0]);
-	toggleProcessed(&allTransactions->data[2]);
-	toggleProcessed(&allTransactions->data[3]);
-
-	toggleRefunded(&allTransactions->data[0]);
-	toggleRefunded(&allTransactions->data[1]);
-	toggleRefunded(&allTransactions->data[4]);
-
 	// Display Transaction
 	printf("Normal:\n");
 	displayTransactions(allTransactions);
 
-
+	// Toggle transactions
 	toggleTransactionStatus(allTransactions);
 
 	// Free memory & exit
@@ -299,7 +291,7 @@ void swapTransactions(Transactions* allTransactions) {
 				// Ask user for indices to swap & validate
 				do {
 					printf("Enter 1st transaction index to swap: ");
-					index1 = getIndex();
+					index1 = getInt();
 					if (index1 < 0) {
 						printf("Index must be at least 0.\n");
 					}
@@ -310,7 +302,7 @@ void swapTransactions(Transactions* allTransactions) {
 
 				do {
 					printf("Enter 2nd transaction index to swap: ");
-					index2 = getIndex();
+					index2 = getInt();
 					if (index2 < 0) {
 						printf("Index must be at least 0.\n");
 					}
@@ -327,7 +319,7 @@ void swapTransactions(Transactions* allTransactions) {
 				}
 			}
 			else if (allTransactions->size == 0) {
-				printf("Cannot swap - only one transaction is stored.\n");
+				printf("Cannot swap transactions - only one transaction is stored.\n");
 			}
 		}
 		else {
@@ -343,21 +335,67 @@ void swapTransactions(Transactions* allTransactions) {
 // RETURNS      : void
 //
 void toggleTransactionStatus(Transactions* allTransactions) {
+	// Constants for menu
+	const int kToggleProcessed = 1;
+	const int kToggleRefunded = 2;
+	const int kToggleBoth = 3;
+	const int kCancel = 4;
+
 	if (allTransactions != NULL) {
 		if (!isEmpty(allTransactions)) {
-			// Ask user for index to toggle
 			int index = SENTINEL; // Store index to change
 			int max = allTransactions->size; // Store highest index
+			int choice = SENTINEL; // Store user option
+
+			// Ask user for index to toggle
 			do {
-				printf("Enter transaction index to toggle : ");
-				index = getIndex();
+				printf("Enter transaction index to toggle: ");
+				index = getInt();
 				if (index < 0 || index > max) {
-					printf("Invalid input. Transaction index must be between 0 - %d", max);
+					printf("Invalid input. Transaction index must be between 0 - %d.\n", max);
 				}
 			} while (index < 0 || index > max);
 
+			// Print transaction to screen
+			printf("\nTransaction to change:\n");
 			printTransaction(allTransactions, index);
 
+			// Ask user for option
+			do {
+				printf("\nMenu:\n");
+				printf("1. Toggle processed status\n");
+				printf("2. Toggle refunded status\n");
+				printf("3. Toggle both\n");
+				printf("4. Cancel\n");
+				printf("Enter your choice: ");
+				choice = getInt();
+				if (choice < kToggleProcessed || choice > kCancel) {
+					printf("Invalid option. Please select an option from 1-4.\n");
+				}
+			} while (choice < kToggleProcessed || choice > kCancel);
+
+			switch (choice) {
+			case kToggleProcessed:
+				toggleProcessed(&allTransactions->data[index]);
+				break;
+			case kToggleRefunded:
+				toggleRefunded(&allTransactions->data[index]);
+				break;
+			case kToggleBoth:
+				toggleProcessed(&allTransactions->data[index]);
+				toggleRefunded(&allTransactions->data[index]);
+				break;
+			case kCancel:
+				printf("\nCancelled toggling transcation.\n");
+				return; // User cancels, return to main function
+				break;
+			default:
+				break;
+			}
+
+			// Print updated transaction to screen
+			printf("\nUpdated transaction:\n");
+			printTransaction(allTransactions, index);
 		}
 		else {
 			printf("No transactions stored.\n");
@@ -454,12 +492,12 @@ float getNum(void) {
 }
 
 //
-// FUNCTION     : getIndex
+// FUNCTION     : getInt
 // DESCRIPTION  : Gets an integer from the user - returns -1 if invalid
 // PARAMETERS   : none
 // RETURNS      : int
 //
-int getIndex(void) {
+int getInt(void) {
 	int num = 0; // Store integer to return
 
 	char input[INPUT_SIZE] = ""; // Buffer for user input
