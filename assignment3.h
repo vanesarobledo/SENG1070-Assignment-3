@@ -13,9 +13,8 @@
 #define	SENTINEL	-1
 
 // Bit positions of where flags are stored in data
-#define	FLAG_PROCESSED	31
-#define	FLAG_REFUNDED	30
-
+#define	PROCESSED_FLAG	31
+#define	REFUNDED_FLAG	30
 
 #define	MASK	0b00111111111111111111111111111111
 	// First two bits are reserved for flags & the last 30 bits are for transaction amount
@@ -64,8 +63,6 @@ void toggleTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
 
 // Bit Operations
-
-void swapNum(float num1, float num2);
 void printBinary(unsigned int);
 
 // User Input Functions
@@ -78,3 +75,9 @@ void clear_bit(uint32_t* reg, uint8_t bit);
 void toggle_bit(uint32_t* reg, uint8_t bit);
 uint8_t is_bit_set(uint32_t reg, uint8_t bit);
 
+void setProcessed(unsigned int* transaction);
+void setRefunded(unsigned int* transaction);
+
+bool extractProcessed(unsigned int transaction);
+bool extractRefunded(unsigned int transaction);
+unsigned int extractTransaction(unsigned int transaction);

@@ -28,28 +28,16 @@ int main(void)
 	allTransactions->data[++allTransactions->size] = 645;
 	allTransactions->data[++allTransactions->size] = 900000009;
 
-	findHighestTransaction(allTransactions);
+	setProcessed(&allTransactions->data[0]);
+
+	bool is_set	= extractProcessed(allTransactions->data[0]);
 
 	// Display Transaction
 	printf("Normal:\n");
 	displayTransactions(allTransactions);
 
-	set_bit(&allTransactions->data[0], 31);
-	set_bit(&allTransactions->data[0], 30);
-
-
-	set_bit(&allTransactions->data[1], 31);
-	set_bit(&allTransactions->data[1], 30);
-
-
-	set_bit(&allTransactions->data[2], 31);
-	set_bit(&allTransactions->data[2], 30);
-
-	printf("After setting: \n");
-	displayTransactions(allTransactions);
-
-
-	findHighestTransaction(allTransactions);
+	// Apply transaction fees
+	applyTransactionFees(allTransactions);
 
 	// Free memory & exit
 	exit(allTransactions);
@@ -110,7 +98,7 @@ void addTransaction(Transactions* allTransactions) {
 
 	// Ask user for amount of transaction and validate
 	do {
-		printf("Enter transaction amount (or -1 to stop): ");
+		printf("Enter transaction amount (or -1 to stop): $");
 		amount = getNum();
 		if (amount == 0) { // Check for valid return from getNum
 			printf("Please enter a valid number.\n");
@@ -146,9 +134,9 @@ void displayTransactions(Transactions* allTransactions) {
 			dollar = (float)(allTransactions->data[i] & MASK) / 100;
 			printf("[%d] Transaction %d: $%.2f ", i, i + 1, dollar);
 			printf("| Processed: ");
-			is_bit_set(allTransactions->data[i], FLAG_PROCESSED) ? printf("Yes") : printf("No");
+			extractProcessed(allTransactions->data[i]) ? printf("Yes") : printf("No");
 			printf(" | Refunded: ");
-			is_bit_set(allTransactions->data[i], FLAG_REFUNDED) ? printf("Yes") : printf("No");
+			extractRefunded(allTransactions->data[i]) ? printf("Yes") : printf("No");
 			printf("\n");
 		}
 	}
@@ -163,13 +151,70 @@ void displayTransactions(Transactions* allTransactions) {
 
 //
 // FUNCTION     : applyTransactionFees
-// DESCRIPTION  :
+// DESCRIPTION  : Applies a user-specified percentage of fees onto all transactions
 // PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void applyTransactionFees(Transactions* allTransactions) {
-//
-//}
+void applyTransactionFees(Transactions* allTransactions) {
+	if (allTransactions != NULL) {
+		if (!isEmpty(allTransactions)) {
+			// Ask user to enter percentage
+			float percent = 0.0; // Store percent
+			bool validNum = false; // Flag for valid number
+			do {
+				printf("Enter percentage fee to apply (1-99) or -1 to cancel: ");
+				percent = getNum();
+				if (percent > 0 && percent < 100) { // User enters valid number
+					validNum = true;
+				}
+				else if (percent == SENTINEL) { // User cancels transaction
+					return;
+				}
+				else { // User enters invalid number
+					printf("Please enter a valid number from 1-99.\n");
+				}
+			} while (percent != SENTINEL && !validNum);
+
+			// Apply percentage transaction to all transactions
+			percent = ((100 - percent) / 100);
+			int current; // Store current masked integer
+			float calculatedValue; // Store calculated new value
+			unsigned int newValue; // Store new integer
+
+			// Store flags to re-set bits
+			bool processedFlag = false; 
+			bool refundedFlag = false; 
+
+			for (int i = 0; i <= allTransactions->size; i++) {
+				// Store data about transaction
+				current = extractTransaction(allTransactions->data[i]);
+				processedFlag = extractProcessed(allTransactions->data[i]);
+				refundedFlag = extractRefunded(allTransactions->data[i]);
+				
+				// Calculate new value
+				calculatedValue = (float)current * percent;
+				newValue = calculatedValue;
+				// Re-set processed and refunded flags
+				if (processedFlag) {
+					setProcessed(&newValue);
+				}
+				if (refundedFlag) {
+					setRefunded(&newValue);
+				}
+
+				// Store new value
+				allTransactions->data[i] = newValue;
+			}
+
+			// Display new amounts
+			printf("New transaction amounts:\n");
+			displayTransactions(allTransactions);
+		}
+		else {
+			printf("No transactions stored.\n");
+		}
+	}
+}
 
 //
 // FUNCTION     : findHighestTransaction
@@ -195,12 +240,12 @@ void findHighestTransaction(Transactions* allTransactions) {
 			printf("Highest Transaction is Transaction %d: $%.2f\n", highestIndex + 1, highestTransaction);
 		}
 		else {
-			printf("No transactions stored\n");
+			printf("No transactions stored.\n");
 		}
 	}
 	// If list is NULL
 	else {
-		printf("No transactions stored\n");
+		printf("No transactions stored.\n");
 	}
 }
 
@@ -238,20 +283,6 @@ void exit(Transactions* allTransactions) {
 	}
 	exit(EXIT_SUCCESS);
 }
-
-//
-// FUNCTION     : swapNum
-// DESCRIPTION  : Swaps the value of two numbers
-// PARAMETERS   : unsigned int num1	:	The first number to swap
-//				  unsigned int num2	:	The second number to swap
-// RETURNS      : void
-//
-//void swapNum(unsigned int* num1, unsigned int* num2) {
-//	*num1 = *num1 ^ *num2;
-//	*num2 = *num2 ^ *num1;
-//	*num1 = *num1 ^ *num2;
-//}
-
 
 //
 // FUNCTION     : menu
@@ -354,6 +385,56 @@ static inline uint8_t is_bit_set(uint32_t reg, uint8_t bit) {
 }
 
 //
+// FUNCTION     : setProcessed
+// DESCRIPTION  : Sets processed flag
+// PARAMETERS   : unsigned int transaction	:	Pointer to data holding transaction
+// RETURNS      : void
+//
+void setProcessed(unsigned int* transaction) {
+	set_bit(transaction, PROCESSED_FLAG);
+}
+
+//
+// FUNCTION     : setRefunded
+// DESCRIPTION  : Sets refunded flag
+// PARAMETERS   : unsigned int transaction	:	Pointer to data holding transaction
+// RETURNS      : void
+//
+void setRefunded(unsigned int* transaction) {
+	set_bit(transaction, REFUNDED_FLAG);
+}
+
+//
+// FUNCTION     : extractProcessed
+// DESCRIPTION  : Checks if transaction is processed by checking if its flag was set
+// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// RETURNS      : bool - 1 if set, 0 if not
+//
+bool extractProcessed(unsigned int transaction) {
+	return is_bit_set(transaction, PROCESSED_FLAG) ? true : false;
+}
+
+//
+// FUNCTION     : extractRefunded
+// DESCRIPTION  : Checks if transaction is refunded by checking if its flag was set
+// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// RETURNS      : bool - 1 if set, 0 if not
+//
+bool extractRefunded(unsigned int transaction) {
+	return is_bit_set(transaction, REFUNDED_FLAG) ? true : false;
+}
+
+//
+// FUNCTION     : extractTransaction
+// DESCRIPTION  : Masks the processed & refunded flags to get transaction value
+// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// RETURNS      : unsigned int
+//
+unsigned int extractTransaction(unsigned int transaction) {
+	return transaction & MASK;
+}
+
+//
 // FUNCTION		: printBinary
 // DESCRIPTION	: This function prints an int in binary form
 // PARAMETERS	: unsigned char data	:	Data to print to binary
@@ -365,14 +446,7 @@ void printBinary(unsigned int data)
 	// Print bit positions by iterating backward and print 1 or 0 by checking if bit was set
 	for (int i = sizeofByte; i >= 0; i--)
 	{
-		if (data & (1 << i))
-		{
-			printf("1");
-		}
-		else
-		{
-			printf("0");
-		}
+		data& (1 << i) ? printf("1") : printf("0");
 	}
 	printf("\n");
 }
