@@ -170,7 +170,7 @@ void addTransactions(Transactions* allTransactions) {
 			printf("Please enter a positive number.\n");
 		}
 		else if (amount > MAX_TRANSACTION) {
-			printf("Maximum dollar amount is $%.2lf. Please enter a lower number.\n", (float)(MAX_TRANSACTION / 100));
+			printf("Maximum dollar amount is $%.2lf. Please enter a lower number.\n", (float)(MAX_TRANSACTION));
 		}
 		else if (amount != SENTINEL) { // Number is valid
 			// Add to dynamic array as long as it does not exceed maximum size
@@ -180,8 +180,8 @@ void addTransactions(Transactions* allTransactions) {
 				break;
 			}
 			else {
-				// Multiply by 100 to convert dollar amount to hundredth cenths
-				amount = amount * 100;
+				// Multiply by 10000 to convert dollar amount to hundredth cents
+				amount = amount * CURRENCY;
 				// Store as integer
 				transaction = (int)amount;
 				// Increase index of transactions
@@ -231,7 +231,7 @@ void printTransaction(Transactions* allTransactions, int index) {
 		if (!isEmpty(allTransactions)) { // Only check if there are values in array
 			if (index >= 0 && index <= allTransactions->size) { // Only check if index is valid
 				// Extract transaction amount
-				float dollar = (float)extractTransaction(allTransactions->data[index]) / 100;
+				float dollar = (float)extractTransaction(allTransactions->data[index]) / CURRENCY;
 				printf("[%d] Transaction %d: $%.2f ", index, index + 1, dollar);
 				// Check processed flag
 				printf("| Processed: ");
@@ -332,7 +332,7 @@ void findHighestTransaction(Transactions* allTransactions) {
 					highestIndex = i;
 				}
 			}
-			highestTransaction = (float)highest / 100;
+			highestTransaction = (float)highest / CURRENCY;
 			printf("Highest Transaction is Transaction %d: $%.2f\n", highestIndex + 1, highestTransaction);
 		}
 		else {
@@ -386,7 +386,7 @@ void swapTransactions(Transactions* allTransactions) {
 				} while (index2 < 0 || index2 > max);
 
 				// Swap indices with XOR Swap
-				if (index1 == index2) { // Indexes were the same
+				if (index1 == index2) { // Indices were the same
 					printf("Indices provided were the same; values not swapped.\n");
 				}
 				else if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {

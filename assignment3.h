@@ -7,7 +7,8 @@
 
 // Define macros
 #define ARRAY_SIZE	100
-#define	INPUT_SIZE	10
+#define	INPUT_SIZE	256
+#define	CURRENCY	10000
 #define	EMPTY	-1
 #define	SENTINEL	-1
 
@@ -15,14 +16,15 @@
 #define	PROCESSED_FLAG	31
 #define	REFUNDED_FLAG	30
 
-#define	MASK	0b00111111111111111111111111111111
+#define	MASK	0x3FFFFFFF
+	// 00111111111111111111111111111111 in binary
 	// First two bits are reserved for flags & the last 30 bits are for transaction amount
 	// This mask is applied to get the transaction amount
 
 #define	MAX_TRANSACTION	100000
 	// The maximum amount of significant digits available to store a transaction is 30, therefore the highest number that can be stored as a transaction amount is 2^30
 	// The units for transaction are stored as hundredth cents and printed as dollars to the console.
-	// Therefore, the maximum amount is (2^30)/4 dollars, or $107374.1824.
+	// Therefore, the maximum amount is (2^30)/10^4 dollars, or $107374.1824.
 	// For simplicity's sake, the maximum dollar amount is set to $100,000.
 
 // Menu
