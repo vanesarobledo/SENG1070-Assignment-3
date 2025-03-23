@@ -173,12 +173,20 @@ void addTransactions(Transactions* allTransactions) {
 			printf("Maximum dollar amount is $%.2lf. Please enter a lower number.\n", (float)(MAX_TRANSACTION / 100));
 		}
 		else if (amount != SENTINEL) { // Number is valid
-			// Multiply by 100 to convert dollar amount to hundredth cenths
-			amount = amount * 100;
-			// Store as integer
-			transaction = (int)amount;
-			// Increase index of transactions
-			allTransactions->data[++allTransactions->size] = transaction;
+			// Add to dynamic array as long as it does not exceed maximum size
+			if (allTransactions->size == ARRAY_SIZE - 1) {
+				// Print error to screen when array sized is reached
+				printf("Max transactions reached (100).\n");
+				break;
+			}
+			else {
+				// Multiply by 100 to convert dollar amount to hundredth cenths
+				amount = amount * 100;
+				// Store as integer
+				transaction = (int)amount;
+				// Increase index of transactions
+				allTransactions->data[++allTransactions->size] = transaction;
+			}
 		}
 	} while (amount != SENTINEL);
 
@@ -223,7 +231,7 @@ void printTransaction(Transactions* allTransactions, int index) {
 		if (!isEmpty(allTransactions)) { // Only check if there are values in array
 			if (index >= 0 && index <= allTransactions->size) { // Only check if index is valid
 				// Extract transaction amount
-				float dollar = extractTransaction(allTransactions->data[index]) / 100;
+				float dollar = (float)extractTransaction(allTransactions->data[index]) / 100;
 				printf("[%d] Transaction %d: $%.2f ", index, index + 1, dollar);
 				// Check processed flag
 				printf("| Processed: ");
@@ -388,7 +396,7 @@ void swapTransactions(Transactions* allTransactions) {
 				}
 
 				// Print swapped transactions to screen
-				printf("\All Transactions:\n");
+				printf("\nAll Transactions:\n");
 				displayTransactions(allTransactions);
 			}
 			else if (allTransactions->size == 0) {
@@ -541,18 +549,50 @@ int getInt(void) {
 }
 
 // Bitmasking Library
-// From "SENG1070: Bitwise Operations" slides
-static inline void set_bit(uint32_t* reg, uint8_t bit) {
-	*reg |= (1U << bit);
+// Based on Bitmasking Library Example from "SENG1070: Bitwise Operations" slides
+
+//
+// FUNCTION     : set_bit
+// DESCRIPTION  : Sets a bit in given data
+// PARAMETERS   : unsigned int* data : Pointer to data containing bit
+//				  int bit			 : Bit that is being set
+// RETURNS      : void
+//
+void set_bit(unsigned int* data, int bit) {
+	*data |= (1U << bit);
 }
-static inline void clear_bit(uint32_t* reg, uint8_t bit) {
-	*reg &= ~(1U << bit);
+
+//
+// FUNCTION     : clear_bit
+// DESCRIPTION  : Clears a bit in given data
+// PARAMETERS   : unsigned int* data : Pointer to data containing bit
+//				  int bit			 : Bit that is being cleared
+// RETURNS      : void
+//
+void clear_bit(unsigned int* data, int bit) {
+	*data &= ~(1U << bit);
 }
-static inline void toggle_bit(uint32_t* reg, uint8_t bit) {
-	*reg ^= (1U << bit);
+
+//
+// FUNCTION     : toggle_bit
+// DESCRIPTION  : Toggles a bit in given data
+// PARAMETERS   : unsigned int* data : Pointer to data containing bit
+//				  int bit			 : Bit that is being toggled
+// RETURNS      : void
+//
+void toggle_bit(unsigned int* data, int bit) {
+	*data ^= (1U << bit);
 }
-static inline uint8_t is_bit_set(uint32_t reg, uint8_t bit) {
-	return (reg & (1U << bit)) ? 1 : 0;
+
+//
+// FUNCTION     : is_bit_set
+// DESCRIPTION  : Checks if a bit is set
+// PARAMETERS   : unsigned int data : Data containing bit
+//				  int bit			: Bit that is being checked
+// RETURNS      : bool - returns 1 if bit is set, 0 if not
+//
+bool is_bit_set(unsigned int data, int bit) {
+	return (data & (1U << bit)) ? 1 : 0;
 }
 
 //

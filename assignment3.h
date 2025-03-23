@@ -8,7 +8,6 @@
 // Define macros
 #define ARRAY_SIZE	100
 #define	INPUT_SIZE	10
-#define	MENU_SIZE	2
 #define	EMPTY	-1
 #define	SENTINEL	-1
 
@@ -64,10 +63,10 @@ void toggleTransactionStatus(Transactions* allTransactions);
 void exit(Transactions* allTransactions);
 
 // Bitmasking Library
-void set_bit(uint32_t* reg, uint8_t bit);
-void clear_bit(uint32_t* reg, uint8_t bit);
-void toggle_bit(uint32_t* reg, uint8_t bit);
-uint8_t is_bit_set(uint32_t reg, uint8_t bit);
+void set_bit(unsigned int* data, int bit);
+void clear_bit(unsigned int* data, int bit);
+void toggle_bit(unsigned int* data, int bit);
+bool is_bit_set(unsigned int data, int bit);
 
 // Bit Operations
 void toggleProcessed(unsigned int* transaction);
@@ -77,6 +76,6 @@ bool extractProcessed(unsigned int transaction);
 bool extractRefunded(unsigned int transaction);
 unsigned int extractTransaction(unsigned int transaction);
 
-// User Input Functions
+// User Input
 float getNum(void);
 int getInt(void);
