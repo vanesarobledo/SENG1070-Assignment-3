@@ -75,8 +75,8 @@ void clear_bit(uint32_t* reg, uint8_t bit);
 void toggle_bit(uint32_t* reg, uint8_t bit);
 uint8_t is_bit_set(uint32_t reg, uint8_t bit);
 
-void setProcessed(unsigned int* transaction);
-void setRefunded(unsigned int* transaction);
+void toggleProcessed(unsigned int* transaction);
+void toggleRefunded(unsigned int* transaction);
 
 bool extractProcessed(unsigned int transaction);
 bool extractRefunded(unsigned int transaction);

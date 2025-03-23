@@ -21,34 +21,26 @@ int main(void)
 	// Initialize dynamic array
 	Transactions* allTransactions = initializeArray();
 
-	// Add Transaction
-	//addTransaction(allTransactions);
-
 	allTransactions->data[++allTransactions->size] = 350;
 	allTransactions->data[++allTransactions->size] = 645;
 	allTransactions->data[++allTransactions->size] = 2020;
 	allTransactions->data[++allTransactions->size] = 9900;
 	allTransactions->data[++allTransactions->size] = 400400;
 
-	setProcessed(&allTransactions->data[0]);
-	setProcessed(&allTransactions->data[2]);
-	setProcessed(&allTransactions->data[3]);
+	toggleProcessed(&allTransactions->data[0]);
+	toggleProcessed(&allTransactions->data[2]);
+	toggleProcessed(&allTransactions->data[3]);
 
-	setRefunded(&allTransactions->data[0]);
-	setRefunded(&allTransactions->data[1]);
-	setRefunded(&allTransactions->data[4]);
+	toggleRefunded(&allTransactions->data[0]);
+	toggleRefunded(&allTransactions->data[1]);
+	toggleRefunded(&allTransactions->data[4]);
 
 	// Display Transaction
 	printf("Normal:\n");
 	displayTransactions(allTransactions);
 
-	// Apply transaction fees
-	//applyTransactionFees(allTransactions);
 
-	// Swap transactions
-	swapTransactions(allTransactions);
-	printf("After swapping:\n");
-	displayTransactions(allTransactions);
+	toggleTransactionStatus(allTransactions);
 
 	// Free memory & exit
 	exit(allTransactions);
@@ -85,7 +77,7 @@ Transactions* initializeArray(void) {
 //
 // FUNCTION     : isEmpty
 // DESCRIPTION  : Checks if size of array is 0 (i.e. size is not -1)
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : bool
 //
 bool isEmpty(Transactions* allTransactions) {
@@ -100,7 +92,7 @@ bool isEmpty(Transactions* allTransactions) {
 //
 // FUNCTION     : addTransaction
 // DESCRIPTION  : Asks a user to to enter transaction amounts to store in dynamic array until they enter -1
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void addTransaction(Transactions* allTransactions) {
@@ -144,8 +136,10 @@ void displayTransactions(Transactions* allTransactions) {
 			// Convert from hundred cenths to dollars
 			dollar = (float)(allTransactions->data[i] & MASK) / 100;
 			printf("[%d] Transaction %d: $%.2f ", i, i + 1, dollar);
+			// Check processed flag
 			printf("| Processed: ");
 			extractProcessed(allTransactions->data[i]) ? printf("Yes") : printf("No");
+			// Check refunded flag
 			printf(" | Refunded: ");
 			extractRefunded(allTransactions->data[i]) ? printf("Yes") : printf("No");
 			printf("\n");
@@ -161,9 +155,34 @@ void displayTransactions(Transactions* allTransactions) {
 }
 
 //
+// FUNCTION     : printTransaction
+// DESCRIPTION  : Displays transaction and information given its index
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
+//				  int index						: Index of dynamic array
+// RETURNS      : void
+//
+void printTransaction(Transactions* allTransactions, int index) {
+	if (allTransactions != NULL) {
+		if (!isEmpty(allTransactions)) {
+			if (index >= 0 && index <= allTransactions->size) {
+				float dollar = (float)(allTransactions->data[index] & MASK) / 100;
+				printf("[%d] Transaction %d: $%.2f ", index, index + 1, dollar);
+				// Check processed flag
+				printf("| Processed: ");
+				extractProcessed(allTransactions->data[index]) ? printf("Yes") : printf("No");
+				// Check refunded flag
+				printf(" | Refunded: ");
+				extractRefunded(allTransactions->data[index]) ? printf("Yes") : printf("No");
+				printf("\n");
+			}
+		}
+	}
+}
+
+//
 // FUNCTION     : applyTransactionFees
 // DESCRIPTION  : Applies a user-specified percentage of fees onto all transactions
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void applyTransactionFees(Transactions* allTransactions) {
@@ -207,10 +226,10 @@ void applyTransactionFees(Transactions* allTransactions) {
 				newValue = calculatedValue;
 				// Re-set processed and refunded flags
 				if (processedFlag) {
-					setProcessed(&newValue);
+					toggleProcessed(&newValue);
 				}
 				if (refundedFlag) {
-					setRefunded(&newValue);
+					toggleRefunded(&newValue);
 				}
 
 				// Store new value
@@ -230,7 +249,7 @@ void applyTransactionFees(Transactions* allTransactions) {
 //
 // FUNCTION     : findHighestTransaction
 // DESCRIPTION  : Finds the highest transaction fee in a list
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void findHighestTransaction(Transactions* allTransactions) {
@@ -263,65 +282,93 @@ void findHighestTransaction(Transactions* allTransactions) {
 //
 // FUNCTION     : swapTransactions
 // DESCRIPTION  : Swaps the values of two transactions
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void swapTransactions(Transactions* allTransactions) {
 	if (allTransactions != NULL) {
 		if (!isEmpty(allTransactions)) {
-			int max = allTransactions->size; // Store maximum index
-			
-			// Store indices of transactions to swap
-			int index1;
-			int index2;
+			// Only perform swap if there are at least 2 transactions
+			if (allTransactions->size >= 1) {
+				int max = allTransactions->size; // Store maximum index
 
-			// Ask user for indices to swap & validate
-			do {
-				printf("Enter 1st transaction index to swap: ");
-				index1 = getIndex();
-				if (index1 < 0) {
-					printf("Index must be at least 0.\n");
-				}
-				if (index1 > max) {
-					printf("Index cannot be greater than %d.\n", max);
-				}
-			} while (index1 < 0 || index1 > max);
+				// Store indices of transactions to swap
+				int index1;
+				int index2;
 
-			do {
-				printf("Enter 2nd transaction index to swap: ");
-				index2 = getIndex();
-				if (index2 < 0) {
-					printf("Index must be at least 0.\n");
-				}
-				if (index2 > max) {
-					printf("Index cannot be greater than %d.\n", max);
-				}
-			} while (index2 < 0 || index2 > max);
+				// Ask user for indices to swap & validate
+				do {
+					printf("Enter 1st transaction index to swap: ");
+					index1 = getIndex();
+					if (index1 < 0) {
+						printf("Index must be at least 0.\n");
+					}
+					if (index1 > max) {
+						printf("Index cannot be greater than %d.\n", max);
+					}
+				} while (index1 < 0 || index1 > max);
 
-			// Swap indices with XOR Swap
-			if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {
-				allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
-				allTransactions->data[index2] = allTransactions->data[index1] ^ allTransactions->data[index2];
-				allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
+				do {
+					printf("Enter 2nd transaction index to swap: ");
+					index2 = getIndex();
+					if (index2 < 0) {
+						printf("Index must be at least 0.\n");
+					}
+					if (index2 > max) {
+						printf("Index cannot be greater than %d.\n", max);
+					}
+				} while (index2 < 0 || index2 > max);
+
+				// Swap indices with XOR Swap
+				if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {
+					allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
+					allTransactions->data[index2] = allTransactions->data[index1] ^ allTransactions->data[index2];
+					allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
+				}
 			}
+			else if (allTransactions->size == 0) {
+				printf("Cannot swap - only one transaction is stored.\n");
+			}
+		}
+		else {
+			printf("No transactions stored.\n");
 		}
 	}
 }
 
 //
 // FUNCTION     : toggleTransactionStatus
-// DESCRIPTION  :
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// DESCRIPTION  : Asks the user for an index 
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void toggleTransactionStatus(Transactions* allTransactions) {
-//
-//}
+void toggleTransactionStatus(Transactions* allTransactions) {
+	if (allTransactions != NULL) {
+		if (!isEmpty(allTransactions)) {
+			// Ask user for index to toggle
+			int index = SENTINEL; // Store index to change
+			int max = allTransactions->size; // Store highest index
+			do {
+				printf("Enter transaction index to toggle : ");
+				index = getIndex();
+				if (index < 0 || index > max) {
+					printf("Invalid input. Transaction index must be between 0 - %d", max);
+				}
+			} while (index < 0 || index > max);
+
+			printTransaction(allTransactions, index);
+
+		}
+		else {
+			printf("No transactions stored.\n");
+		}
+	}
+}
 
 //
 // FUNCTION     : exit
 // DESCRIPTION  : Frees memory of dynamically allocated array
-// PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
+// PARAMETERS   : Transactions* allTransactions : Pointer to struct containing dynamic array
 // RETURNS      : void
 //
 void exit(Transactions* allTransactions) {
@@ -353,7 +400,7 @@ void menu(void) {
 //
 // FUNCTION     : getMenuOperation
 // DESCRIPTION  : Gets number from user for menu operation
-// PARAMETERS   : int* operation	:	Pointer to menu operation
+// PARAMETERS   : int* operation : Pointer to menu operation
 // RETURNS      : void
 //
 void getMenuOperation(int* operation) {
@@ -424,14 +471,12 @@ int getIndex(void) {
 
 	// Validate input - return 0.0 if invalid
 	if (sscanf_s(input, "%d %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
-		return EMPTY;
+		return SENTINEL;
 	}
 	else {
 		return num;
 	}
 }
-
-
 
 // Bitmasking Library
 // From "SENG1070: Bitwise Operations" slides
@@ -449,29 +494,29 @@ static inline uint8_t is_bit_set(uint32_t reg, uint8_t bit) {
 }
 
 //
-// FUNCTION     : setProcessed
-// DESCRIPTION  : Sets processed flag
-// PARAMETERS   : unsigned int transaction	:	Pointer to data holding transaction
+// FUNCTION     : toggleProcessed
+// DESCRIPTION  : Toggles processed flag
+// PARAMETERS   : unsigned int transaction : Pointer to data holding transaction
 // RETURNS      : void
 //
-void setProcessed(unsigned int* transaction) {
-	set_bit(transaction, PROCESSED_FLAG);
+void toggleProcessed(unsigned int* transaction) {
+	toggle_bit(transaction, PROCESSED_FLAG);
 }
 
 //
-// FUNCTION     : setRefunded
-// DESCRIPTION  : Sets refunded flag
-// PARAMETERS   : unsigned int transaction	:	Pointer to data holding transaction
+// FUNCTION     : toggleRefunded
+// DESCRIPTION  : Toggles refunded flag
+// PARAMETERS   : unsigned int transaction : Pointer to data holding transaction
 // RETURNS      : void
 //
-void setRefunded(unsigned int* transaction) {
-	set_bit(transaction, REFUNDED_FLAG);
+void toggleRefunded(unsigned int* transaction) {
+	toggle_bit(transaction, REFUNDED_FLAG);
 }
 
 //
 // FUNCTION     : extractProcessed
 // DESCRIPTION  : Checks if transaction is processed by checking if its flag was set
-// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// PARAMETERS   : unsigned int transaction : Data holding transaction
 // RETURNS      : bool - 1 if set, 0 if not
 //
 bool extractProcessed(unsigned int transaction) {
@@ -481,7 +526,7 @@ bool extractProcessed(unsigned int transaction) {
 //
 // FUNCTION     : extractRefunded
 // DESCRIPTION  : Checks if transaction is refunded by checking if its flag was set
-// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// PARAMETERS   : unsigned int transaction : Data holding transaction
 // RETURNS      : bool - 1 if set, 0 if not
 //
 bool extractRefunded(unsigned int transaction) {
@@ -491,7 +536,7 @@ bool extractRefunded(unsigned int transaction) {
 //
 // FUNCTION     : extractTransaction
 // DESCRIPTION  : Masks the processed & refunded flags to get transaction value
-// PARAMETERS   : unsigned int transaction	:	Data holding transaction
+// PARAMETERS   : unsigned int transaction : Data holding transaction
 // RETURNS      : unsigned int
 //
 unsigned int extractTransaction(unsigned int transaction) {
@@ -501,7 +546,7 @@ unsigned int extractTransaction(unsigned int transaction) {
 //
 // FUNCTION		: printBinary
 // DESCRIPTION	: This function prints an int in binary form
-// PARAMETERS	: unsigned char data	:	Data to print to binary
+// PARAMETERS	: unsigned char data : Data to print to binary
 // RETURNS		: void
 //
 void printBinary(unsigned int data)
