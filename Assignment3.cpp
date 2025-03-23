@@ -26,18 +26,29 @@ int main(void)
 
 	allTransactions->data[++allTransactions->size] = 350;
 	allTransactions->data[++allTransactions->size] = 645;
-	allTransactions->data[++allTransactions->size] = 900000009;
+	allTransactions->data[++allTransactions->size] = 2020;
+	allTransactions->data[++allTransactions->size] = 9900;
+	allTransactions->data[++allTransactions->size] = 400400;
 
 	setProcessed(&allTransactions->data[0]);
+	setProcessed(&allTransactions->data[2]);
+	setProcessed(&allTransactions->data[3]);
 
-	bool is_set	= extractProcessed(allTransactions->data[0]);
+	setRefunded(&allTransactions->data[0]);
+	setRefunded(&allTransactions->data[1]);
+	setRefunded(&allTransactions->data[4]);
 
 	// Display Transaction
 	printf("Normal:\n");
 	displayTransactions(allTransactions);
 
 	// Apply transaction fees
-	applyTransactionFees(allTransactions);
+	//applyTransactionFees(allTransactions);
+
+	// Swap transactions
+	swapTransactions(allTransactions);
+	printf("After swapping:\n");
+	displayTransactions(allTransactions);
 
 	// Free memory & exit
 	exit(allTransactions);
@@ -251,13 +262,51 @@ void findHighestTransaction(Transactions* allTransactions) {
 
 //
 // FUNCTION     : swapTransactions
-// DESCRIPTION  :
+// DESCRIPTION  : Swaps the values of two transactions
 // PARAMETERS   : Transactions* allTransactions :	Pointer to struct containing dynamic array
 // RETURNS      : void
 //
-//void swapTransactions(Transactions* allTransactions) {
-//
-//}
+void swapTransactions(Transactions* allTransactions) {
+	if (allTransactions != NULL) {
+		if (!isEmpty(allTransactions)) {
+			int max = allTransactions->size; // Store maximum index
+			
+			// Store indices of transactions to swap
+			int index1;
+			int index2;
+
+			// Ask user for indices to swap & validate
+			do {
+				printf("Enter 1st transaction index to swap: ");
+				index1 = getIndex();
+				if (index1 < 0) {
+					printf("Index must be at least 0.\n");
+				}
+				if (index1 > max) {
+					printf("Index cannot be greater than %d.\n", max);
+				}
+			} while (index1 < 0 || index1 > max);
+
+			do {
+				printf("Enter 2nd transaction index to swap: ");
+				index2 = getIndex();
+				if (index2 < 0) {
+					printf("Index must be at least 0.\n");
+				}
+				if (index2 > max) {
+					printf("Index cannot be greater than %d.\n", max);
+				}
+			} while (index2 < 0 || index2 > max);
+
+			// Swap indices with XOR Swap
+			if (index1 >= 0 && index2 >= 0 && index1 <= max && index2 <= max) {
+				allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
+				allTransactions->data[index2] = allTransactions->data[index1] ^ allTransactions->data[index2];
+				allTransactions->data[index1] = allTransactions->data[index1] ^ allTransactions->data[index2];
+			}
+		}
+	}
+}
 
 //
 // FUNCTION     : toggleTransactionStatus
@@ -363,9 +412,24 @@ float getNum(void) {
 // PARAMETERS   : none
 // RETURNS      : int
 //
-//int getIndex(void) {
-//
-//}
+int getIndex(void) {
+	int num = 0; // Store integer to return
+
+	char input[INPUT_SIZE] = ""; // Buffer for user input
+	char extraChar = '0'; // Store any extraneous input from user
+
+	// Ask user for number
+	fgets(input, sizeof(input), stdin);
+	input[strlen(input) - 1] = '\0'; // Remove trailing newline character from input
+
+	// Validate input - return 0.0 if invalid
+	if (sscanf_s(input, "%d %c", &num, &extraChar, (unsigned int)sizeof(extraChar)) != 1) {
+		return EMPTY;
+	}
+	else {
+		return num;
+	}
+}
 
 
 
